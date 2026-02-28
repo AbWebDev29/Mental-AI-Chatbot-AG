@@ -3,11 +3,12 @@ import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
-from fastapi import FastAPI, Body, HTTPException
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 from google.genai import types
 
-# Internal module imports
+# Internal module imports (Ensure these files exist in your directory)
 from .database import connect_to_mongo, save_session_data, db
 from .nlp_engine import get_clinical_markers
 
@@ -18,8 +19,23 @@ load_dotenv(dotenv_path=env_path, override=True)
 # 2. Initialization
 app = FastAPI(title="Clinical AI Assistant API")
 
+# --- CORS MIDDLEWARE ---
+# This allows your Next.js frontend (port 3000) to access this API (port 8000)
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Initialize Gemini Client for 2026 Stable SDK
-# Using http_options to force the production v1 endpoint
+# We force 'v1' to avoid the 404 errors common with 'v1beta'
 client_ai = genai.Client(
     api_key=os.getenv("GOOGLE_API_KEY"),
     http_options=types.HttpOptions(api_version='v1')
@@ -32,85 +48,54 @@ async def startup_db_client():
 # --- ROUTES ---
 
 @app.post("/chat")
-async def chat_with_analysis(user_id: str, message: str):
+async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...)):
+    # 1. ALWAYS run the NLP Audit first
+    markers = get_clinical_markers(message)
+    ai_reply = ""
+    
     try:
-        # 1. Run NLP Audit (spaCy-based marker detection)
-        markers = get_clinical_markers(message)
+        # 2. Prepare the prompt
+        prompt = f"Mental Health Assistant context: {markers['state']}. User says: {message}"
         
-        # 2. Prepare Clinical Prompt with your 3-9 Scale Theory
-        prompt = f"""
-        Role: Specialized Mental Health Assistant.
-        Theory: Analyze user intensity on a scale of 3-9.
-        Detected Markers: {markers['state']} (Thinking: {markers['thinking_intensity']}, Doing: {markers['doing_intensity']}).
-        
-        User Message: "{message}"
-        
-        Task: Provide an empathetic response based on the intensity.
-        If intensity is high (7-9), prioritize grounding techniques. 
-        If intensity is low (3-5), focus on reflection.
-        """
-        
-        # 3. Call current 2026 Stable Model (Gemini 2.0 Flash)
-        # Note: If you want the absolute latest, use "gemini-3-flash"
+        # 3. Attempt to call Gemini
         response = client_ai.models.generate_content(
             model="gemini-2.0-flash", 
             contents=prompt
         )
-        
-        ai_reply = response.text if response.text else "I'm here to listen. Can you tell me more about what's on your mind?"
-
-        # 4. Save structured data to MongoDB
-        session_entry = {
-            "user_id": user_id,
-            "timestamp": datetime.datetime.utcnow(),
-            "message": message,
-            "ai_reply": ai_reply,
-            "clinical_markers": markers
-        }
-        
-        await save_session_data(user_id, session_entry)
-        
-        return {
-            "reply": ai_reply, 
-            "analysis": markers
-        }
+        ai_reply = response.text if response.text else "I'm here to listen."
 
     except Exception as e:
-        error_msg = str(e)
-        # Graceful handling for Rate Limits (429)
-        if "429" in error_msg:
-            return {
-                "reply": "I'm reflecting on your thoughts. Please give me a moment to process.",
-                "analysis": {"state": "Rate Limited", "thinking_intensity": 0, "doing_intensity": 0}
-            }
-        
-        print(f"❌ CHAT ERROR: {error_msg}")
-        raise HTTPException(status_code=500, detail=error_msg)
+        if "429" in str(e):
+            ai_reply = "I'm reflecting on your thoughts. (Note: Clinical markers were saved)."
+        else:
+            ai_reply = "I'm having trouble connecting, but I've noted your feelings."
+
+    # 4. CRITICAL: Save to MongoDB OUTSIDE the try/except block
+    # This ensures history is updated even if Gemini fails
+    session_entry = {
+        "user_id": user_id,
+        "timestamp": datetime.datetime.utcnow(),
+        "message": message,
+        "ai_reply": ai_reply,
+        "clinical_markers": markers
+    }
+    await save_session_data(user_id, session_entry)
     
+    return {"reply": ai_reply, "analysis": markers}
 @app.get("/history/{user_id}")
 async def get_patient_history(user_id: str):
-    """
-    Retrieves chronological chat history for a specific user.
-    """
     try:
-        # 1. Query 'sessions' collection (sorting by timestamp)
         cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", 1)
-        
-        # 2. Convert cursor to list (limit to last 100 for performance)
         history = await cursor.to_list(length=100)
         
+        # If no history, just return an empty list instead of crashing
         if not history:
-            raise HTTPException(status_code=404, detail="No history found for this user")
+            return {"user_id": user_id, "count": 0, "history": []}
 
-        # 3. Format data for JSON response
         for entry in history:
             entry["_id"] = str(entry["_id"])
             
-        return {
-            "user_id": user_id,
-            "count": len(history),
-            "history": history
-        }
+        return {"user_id": user_id, "count": len(history), "history": history}
     except Exception as e:
         print(f"❌ HISTORY ERROR: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Database retrieval failed")
