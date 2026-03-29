@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental AI — Games</title>
+  <meta name="description" content="Calming interactive games to lift your mood and relax your mind.">
+  <link rel="stylesheet" href="styles/global.css">
+  <style>
+    .games-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px 30px 60px;
+    }
+
+    .games-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .games-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .games-header h1 span {
+      background: linear-gradient(135deg, #d97fa0, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .games-header p {
+      font-size: 0.92rem;
+      color: var(--text-light);
+    }
+
+    /* ---- Card Grid ---- */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      width: 100%;
+      max-width: 860px;
+    }
+
+    .game-card {
+      aspect-ratio: 3/4;
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.35));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(255,255,255,0.78);
+      box-shadow: 0 6px 24px rgba(180,120,160,0.14);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.34,1.3,0.64,1),
+                  box-shadow 0.25s ease;
+
+      /* Entrance animation — start offscreen below */
+      opacity: 0;
+      transform: translateY(80px) rotate(var(--rot, 0deg));
+      animation: cardRise 0.65s cubic-bezier(0.34,1.2,0.64,1) both;
+      animation-delay: var(--delay, 0s);
+    }
+
+    @keyframes cardRise {
+      to {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+      }
+    }
+
+    /* Inner shimmer */
+    .game-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0.3) 0%,
+        transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Subtle color accent at bottom */
+    .game-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 35%;
+      background: var(--card-color, rgba(249,168,212,0.18));
+      border-radius: 0 0 18px 18px;
+      pointer-events: none;
+      transition: height 0.3s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px) scale(1.04);
+      box-shadow: 0 18px 42px rgba(180,120,160,0.28);
+    }
+
+    .game-card:hover::after {
+      height: 45%;
+    }
+
+    .card-emoji {
+      font-size: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-num {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-light);
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Unique card colors */
+    .game-card:nth-child(4n+1)  { --card-color: rgba(249,168,212,0.22); }
+    .game-card:nth-child(4n+2)  { --card-color: rgba(212,184,240,0.22); }
+    .game-card:nth-child(4n+3)  { --card-color: rgba(184,216,248,0.22); }
+    .game-card:nth-child(4n)    { --card-color: rgba(255,217,183,0.22); }
+
+    /* Random initial rotations for entrance variety */
+    .game-card:nth-child(1)  { --rot: -4deg;  --delay: 0.04s; }
+    .game-card:nth-child(2)  { --rot:  3deg;  --delay: 0.08s; }
+    .game-card:nth-child(3)  { --rot: -2deg;  --delay: 0.12s; }
+    .game-card:nth-child(4)  { --rot:  4deg;  --delay: 0.16s; }
+    .game-card:nth-child(5)  { --rot: -3deg;  --delay: 0.20s; }
+    .game-card:nth-child(6)  { --rot:  2deg;  --delay: 0.24s; }
+    .game-card:nth-child(7)  { --rot: -4deg;  --delay: 0.28s; }
+    .game-card:nth-child(8)  { --rot:  3deg;  --delay: 0.32s; }
+    .game-card:nth-child(9)  { --rot: -2deg;  --delay: 0.36s; }
+    .game-card:nth-child(10) { --rot:  4deg;  --delay: 0.40s; }
+    .game-card:nth-child(11) { --rot: -3deg;  --delay: 0.44s; }
+    .game-card:nth-child(12) { --rot:  2deg;  --delay: 0.48s; }
+    .game-card:nth-child(13) { --rot: -4deg;  --delay: 0.52s; }
+    .game-card:nth-child(14) { --rot:  3deg;  --delay: 0.56s; }
+    .game-card:nth-child(15) { --rot: -2deg;  --delay: 0.60s; }
+    .game-card:nth-child(16) { --rot:  4deg;  --delay: 0.64s; }
+
+    /* ---- Tablet ---- */
+    @media (max-width: 900px) {
+      .cards-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 680px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 400px;
+        gap: 14px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-bg"></div>
+
+  <div class="page-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-logo">
+        <div class="logo-circle">🌸</div>
+        <div class="logo-text"><span>Mental</span> AI</div>
+      </a>
+      <ul class="navbar-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="games.html" class="active">Games</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="signin.html">Sign In</a></li>
+      </ul>
+      <div class="navbar-profile">👤</div>
+    </nav>
+
+    <main class="games-page">
+      <div class="games-header">
+        <h1>Mood-Lifting <span>Games</span> 🎮</h1>
+        <p>Take a gentle break · Play, relax, and breathe</p>
+      </div>
+
+      <div class="cards-grid" id="cardsGrid">
+        <!-- 16 cards generated by JS below -->
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const cardEmojis = [
+      '🌸','🌷','🌿','💜',
+      '🦋','☁️','✨','🌙',
+      '🍃','🩷','🌈','🫧',
+      '🎀','🌺','💫','🌟'
+    ];
+
+    const grid = document.getElementById('cardsGrid');
+
+    for (let i = 0; i < 16; i++) {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+      card.innerHTML = `
+        <span class="card-emoji">${cardEmojis[i]}</span>
+        <span class="card-num">CARD ${String(i + 1).padStart(2, '0')}</span>
+      `;
+      card.addEventListener('click', () => {
+        card.style.transform = 'scale(0.95)';
+        setTimeout(() => { card.style.transform = ''; }, 150);
+      });
+      grid.appendChild(card);
+    }
+  </script>
+</body>
+</html>

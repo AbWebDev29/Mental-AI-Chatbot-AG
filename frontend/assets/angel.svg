@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 300" fill="none">
+  <!-- Halo -->
+  <ellipse cx="110" cy="30" rx="38" ry="10" fill="none" stroke="#fcd34d" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+  <!-- Wings left -->
+  <ellipse cx="58" cy="148" rx="55" ry="28" fill="#ede9fe" opacity="0.85" transform="rotate(-25 58 148)"/>
+  <ellipse cx="52" cy="160" rx="42" ry="18" fill="#fce7f3" opacity="0.7" transform="rotate(-30 52 160)"/>
+  <!-- Wings right -->
+  <ellipse cx="162" cy="148" rx="55" ry="28" fill="#ede9fe" opacity="0.85" transform="rotate(25 162 148)"/>
+  <ellipse cx="168" cy="160" rx="42" ry="18" fill="#fce7f3" opacity="0.7" transform="rotate(30 168 160)"/>
+  <!-- Body / Dress -->
+  <ellipse cx="110" cy="210" rx="46" ry="62" fill="#fce7f3"/>
+  <ellipse cx="110" cy="240" rx="52" ry="50" fill="#fbcfe8" opacity="0.7"/>
+  <!-- Dress shimmer -->
+  <ellipse cx="110" cy="235" rx="30" ry="38" fill="rgba(255,255,255,0.35)"/>
+  <!-- Neck -->
+  <rect x="100" y="120" width="20" height="22" rx="10" fill="#fde8d8"/>
+  <!-- Head -->
+  <ellipse cx="110" cy="97" rx="38" ry="38" fill="#fde8d8"/>
+  <!-- Hair -->
+  <ellipse cx="110" cy="68" rx="38" ry="18" fill="#f9a8d4"/>
+  <ellipse cx="78" cy="90" rx="14" ry="32" fill="#f9a8d4"/>
+  <ellipse cx="142" cy="90" rx="14" ry="32" fill="#f9a8d4"/>
+  <ellipse cx="110" cy="66" rx="30" ry="14" fill="#fbc4d6"/>
+  <!-- Eyes -->
+  <ellipse cx="96" cy="98" rx="7" ry="8" fill="#fff"/>
+  <ellipse cx="124" cy="98" rx="7" ry="8" fill="#fff"/>
+  <circle cx="97" cy="99" r="4" fill="#7c3aed"/>
+  <circle cx="125" cy="99" r="4" fill="#7c3aed"/>
+  <circle cx="98.5" cy="97" r="1.5" fill="#fff"/>
+  <circle cx="126.5" cy="97" r="1.5" fill="#fff"/>
+  <!-- Eyelashes -->
+  <line x1="89" y1="91" x2="88" y2="87" stroke="#f9a8d4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="96" y1="89" x2="96" y2="85" stroke="#f9a8d4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="103" y1="91" x2="104" y2="87" stroke="#f9a8d4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="117" y1="91" x2="116" y2="87" stroke="#f9a8d4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="124" y1="89" x2="124" y2="85" stroke="#f9a8d4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="131" y1="91" x2="132" y2="87" stroke="#f9a8d4" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Rosy cheeks -->
+  <ellipse cx="85" cy="108" rx="10" ry="6" fill="#f9a8d4" opacity="0.45"/>
+  <ellipse cx="135" cy="108" rx="10" ry="6" fill="#f9a8d4" opacity="0.45"/>
+  <!-- Smile -->
+  <path d="M100 114 Q110 122 120 114" stroke="#e879a0" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Nose -->
+  <ellipse cx="110" cy="108" rx="3" ry="2" fill="#f0b8c8" opacity="0.6"/>
+  <!-- Stars / sparkles around -->
+  <text x="28" y="120" font-size="14" fill="#fcd34d" opacity="0.8">✦</text>
+  <text x="178" y="108" font-size="10" fill="#c084fc" opacity="0.7">✦</text>
+  <text x="60" y="68" font-size="9" fill="#f9a8d4" opacity="0.8">✦</text>
+  <text x="155" y="72" font-size="12" fill="#fcd34d" opacity="0.6">✦</text>
+  <!-- Dress details -->
+  <ellipse cx="90" cy="250" rx="8" ry="5" fill="white" opacity="0.4"/>
+  <ellipse cx="110" cy="260" rx="8" ry="5" fill="white" opacity="0.3"/>
+  <ellipse cx="130" cy="252" rx="6" ry="4" fill="white" opacity="0.4"/>
+</svg>

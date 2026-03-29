@@ -1,0 +1,219 @@
+/* ================================================
+   MENTAL AI — GLOBAL DESIGN SYSTEM
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* ---------- CSS Variables ---------- */
+:root {
+  --pink: #f9c5d1;
+  --lavender: #d4b8f0;
+  --baby-blue: #b8d8f8;
+  --peach: #ffd9b7;
+  --white-glass: rgba(255,255,255,0.45);
+  --white-glass-border: rgba(255,255,255,0.7);
+  --shadow-soft: 0 8px 32px rgba(180, 120, 160, 0.18);
+  --radius-lg: 24px;
+  --radius-xl: 36px;
+  --radius-pill: 999px;
+  --font: 'Outfit', sans-serif;
+  --text-dark: #4a3a5c;
+  --text-mid: #7a6a8c;
+  --text-light: #b0a0c0;
+}
+
+/* ---------- Reset ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  color: var(--text-dark);
+  overflow-x: hidden;
+}
+
+/* ---------- Animated Gradient Background ---------- */
+.gradient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    135deg,
+    #fde8ee,
+    #e8d5f5,
+    #d0e8ff,
+    #ffe8d5,
+    #fde8ee,
+    #e8d5f5
+  );
+  background-size: 400% 400%;
+  animation: gradientFlow 18s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 100% 50%; }
+  50%  { background-position: 100% 0%; }
+  75%  { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---------- Page Wrapper ---------- */
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--white-glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f9a8d4, #fb923c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(249,168,212,0.5);
+}
+
+.logo-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: 0.5px;
+}
+
+.logo-text span {
+  background: linear-gradient(135deg, #d97fa0, #fb923c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: var(--text-mid);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  transition: all 0.25s ease;
+}
+
+.navbar-links a:hover,
+.navbar-links a.active {
+  background: rgba(255,255,255,0.65);
+  color: var(--text-dark);
+  box-shadow: 0 2px 8px rgba(180,120,160,0.12);
+}
+
+.navbar-profile {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4b8f0, #b8d8f8);
+  border: 2px solid var(--white-glass-border);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(180,120,160,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.navbar-profile:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(180,120,160,0.35);
+}
+
+/* ---------- Glassmorphism Card ---------- */
+.glass-card {
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255,255,255,0.75);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ---------- Button ---------- */
+.btn-primary {
+  background: linear-gradient(135deg, #f9a8d4, #c084fc);
+  border: none;
+  border-radius: var(--radius-pill);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 14px 36px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(192,132,252,0.4);
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(192,132,252,0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ---------- Responsive Helpers ---------- */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 14px 20px;
+  }
+  .navbar-links a {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-links {
+    gap: 4px;
+  }
+  .navbar-links a {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+  }
+}

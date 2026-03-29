@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental AI — About</title>
+  <meta name="description" content="Learn about Mental AI — your calming mental wellness companion powered by empathy and AI.">
+  <link rel="stylesheet" href="styles/global.css">
+  <style>
+    .about-page {
+      flex: 1;
+      padding: 60px 40px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 64px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ---- Hero Row ---- */
+    .about-hero {
+      display: flex;
+      align-items: center;
+      gap: 52px;
+      width: 100%;
+    }
+
+    .about-angel {
+      flex-shrink: 0;
+      width: 200px;
+      animation: float 4.5s ease-in-out infinite;
+      filter: drop-shadow(0 16px 36px rgba(249,168,212,0.35));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-16px); }
+    }
+
+    .about-hero-text h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+    }
+
+    .about-hero-text h1 span {
+      background: linear-gradient(135deg, #d97fa0, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .about-hero-text p {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text-mid);
+      margin-bottom: 24px;
+    }
+
+    /* ---- Section Card ---- */
+    .about-section {
+      width: 100%;
+      padding: 36px 40px;
+      background: rgba(255,255,255,0.42);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255,255,255,0.78);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(180,120,160,0.13);
+    }
+
+    .about-section h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .about-section h2 .section-emoji {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(249,168,212,0.4), rgba(192,132,252,0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .about-section p {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text-mid);
+    }
+
+    /* ---- Features Grid ---- */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .feature-card {
+      padding: 28px;
+      background: rgba(255,255,255,0.42);
+      backdrop-filter: blur(18px);
+      border: 1.5px solid rgba(255,255,255,0.78);
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(180,120,160,0.1);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(180,120,160,0.2);
+    }
+
+    .feature-card .feat-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: var(--text-mid);
+    }
+
+    /* ---- Stats Row ---- */
+    .stats-row {
+      display: flex;
+      gap: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.42);
+      backdrop-filter: blur(18px);
+      border: 1.5px solid rgba(255,255,255,0.78);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(180,120,160,0.13);
+    }
+
+    .stat-item {
+      flex: 1;
+      padding: 32px 20px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #d97fa0, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      color: var(--text-light);
+    }
+
+    /* ---- CTA ---- */
+    .about-cta {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .about-cta h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .about-cta p {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      max-width: 420px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .about-page { padding: 40px 20px 60px; gap: 40px; }
+      .about-hero { flex-direction: column; align-items: center; text-align: center; gap: 28px; }
+      .about-angel { width: 150px; }
+      .about-hero-text h1 { font-size: 1.8rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .stats-row { flex-direction: column; }
+      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.5); }
+      .stat-item:last-child { border-bottom: none; }
+      .about-section { padding: 24px 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-bg"></div>
+
+  <div class="page-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-logo">
+        <div class="logo-circle">🌸</div>
+        <div class="logo-text"><span>Mental</span> AI</div>
+      </a>
+      <ul class="navbar-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="signin.html">Sign In</a></li>
+      </ul>
+      <div class="navbar-profile">👤</div>
+    </nav>
+
+    <main class="about-page">
+      <!-- Hero Row -->
+      <div class="about-hero">
+        <img class="about-angel" src="assets/angel.svg" alt="Mental AI angel companion" />
+        <div class="about-hero-text">
+          <h1>Your <span>Mental Wellness</span> Companion</h1>
+          <p>
+            Mental AI is a safe, empathetic space where you can express your feelings without judgment.
+            Our AI companion is always here — ready to listen, guide, and gently support you through
+            whatever you're going through.
+          </p>
+          <a href="chat.html"><button class="btn-primary">Start Talking 🌸</button></a>
+        </div>
+      </div>
+
+      <!-- Mission -->
+      <div class="about-section">
+        <h2><span class="section-emoji">💜</span> Our Mission</h2>
+        <p>
+          We believe mental health support should be accessible to everyone, any time, any day.
+          Mental AI was built with one purpose: to be a compassionate, non-judgmental presence in your life.
+          Whether you're feeling anxious, overwhelmed, sad, or just need someone to talk to —
+          we're here with open arms and a listening heart.
+        </p>
+      </div>
+
+      <!-- Features -->
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feat-icon">🌸</span>
+          <h3>Empathetic Conversations</h3>
+          <p>Our AI is trained to respond with warmth, understanding, and care — never robotic or cold.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feat-icon">🔒</span>
+          <h3>100% Private</h3>
+          <p>Your conversations are completely private. We never share or sell your personal emotional data.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feat-icon">🎮</span>
+          <h3>Mood-Lifting Games</h3>
+          <p>Gentle interactive games designed to distract, relax, and bring a smile to your face.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feat-icon">🆘</span>
+          <h3>Crisis Support</h3>
+          <p>Immediate guidance and links to professional resources if you're ever in a difficult moment.</p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-number">50K+</span>
+          <span class="stat-label">People Supported</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">1M+</span>
+          <span class="stat-label">Conversations</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">4.9★</span>
+          <span class="stat-label">Average Rating</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Always Available</span>
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="about-section">
+        <h2><span class="section-emoji">✨</span> How It Works</h2>
+        <p>
+          Simply tell Mental AI how you're feeling — type it out, choose a mood chip, or start a free-form
+          conversation. Our AI listens carefully and responds with thoughtful, gentle messages. Over time,
+          it learns your patterns to provide even more personalized support. You can also try our calming
+          games or access our support resources whenever you need a little extra care.
+        </p>
+      </div>
+
+      <!-- CTA -->
+      <div class="about-cta">
+        <h2>Ready to feel better? 🌷</h2>
+        <p>Start a conversation today. It's free, safe, and always here for you.</p>
+        <a href="chat.html"><button class="btn-primary">Talk to Mental AI</button></a>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

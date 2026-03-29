@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental AI — Your Safe Space</title>
+  <meta name="description" content="Mental AI is your calming mental wellness companion. Talk, breathe, and find peace.">
+  <link rel="stylesheet" href="styles/global.css">
+  <style>
+    /* ---- Hero Section ---- */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px 60px;
+      gap: 0;
+    }
+
+    .angel-wrapper {
+      position: relative;
+      width: 220px;
+      height: 300px;
+      margin-bottom: 10px;
+      animation: float 4.5s ease-in-out infinite;
+      filter: drop-shadow(0 18px 40px rgba(249,168,212,0.38));
+    }
+
+    .angel-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Soft glow underneath angel */
+    .angel-wrapper::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 22px;
+      background: radial-gradient(ellipse at center, rgba(249,168,212,0.45), transparent);
+      border-radius: 50%;
+      animation: shadowPulse 4.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-18px); }
+    }
+
+    @keyframes shadowPulse {
+      0%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.5; }
+      50%       { transform: translateX(-50%) scaleX(0.75); opacity: 0.25; }
+    }
+
+    /* Tagline */
+    .hero-tagline {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    /* ---- Search / Input ---- */
+    .search-container {
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+      margin-top: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 20px 60px 20px 28px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.42);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      font-family: var(--font);
+      font-size: 1rem;
+      color: var(--text-dark);
+      outline: none;
+      box-shadow: 0 8px 32px rgba(180,120,160,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-light);
+    }
+
+    .search-input:focus {
+      box-shadow: 0 0 0 3px rgba(192,132,252,0.3), 0 8px 32px rgba(180,120,160,0.2);
+      border-color: rgba(192,132,252,0.55);
+    }
+
+    .search-icon-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f9a8d4, #c084fc);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(192,132,252,0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-icon-btn:hover {
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 6px 18px rgba(192,132,252,0.5);
+    }
+
+    .search-icon-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ---- Floating mood chips ---- */
+    .mood-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 22px;
+      max-width: 540px;
+    }
+
+    .chip {
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      background: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.8);
+      font-size: 0.82rem;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all 0.22s ease;
+      backdrop-filter: blur(10px);
+      font-family: var(--font);
+    }
+
+    .chip:hover {
+      background: rgba(255,255,255,0.75);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(180,120,160,0.18);
+      color: var(--text-dark);
+    }
+
+    /* ---- Footer ---- */
+    .footer-note {
+      text-align: center;
+      padding: 18px;
+      font-size: 0.78rem;
+      color: var(--text-light);
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-bg"></div>
+
+  <div class="page-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-logo">
+        <div class="logo-circle">🌸</div>
+        <div class="logo-text"><span>Mental</span> AI</div>
+      </a>
+      <ul class="navbar-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="signin.html">Sign In</a></li>
+      </ul>
+      <div class="navbar-profile">👤</div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="hero">
+      <p class="hero-tagline">Your calming mental wellness space ✦</p>
+
+      <!-- Floating Angel -->
+      <div class="angel-wrapper">
+        <img src="assets/angel.svg" alt="Angel guide" />
+      </div>
+
+      <!-- Search Input -->
+      <div class="search-container">
+        <input
+          id="moodInput"
+          class="search-input"
+          type="text"
+          placeholder="How are you feeling today ...."
+          autocomplete="off"
+        />
+        <button class="search-icon-btn" onclick="goToChat()" title="Start chatting">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mood chips -->
+      <div class="mood-chips">
+        <div class="chip" onclick="setMood('😊 Happy')">😊 Happy</div>
+        <div class="chip" onclick="setMood('😔 Sad')">😔 Sad</div>
+        <div class="chip" onclick="setMood('😰 Anxious')">😰 Anxious</div>
+        <div class="chip" onclick="setMood('😤 Stressed')">😤 Stressed</div>
+        <div class="chip" onclick="setMood('😴 Tired')">😴 Tired</div>
+        <div class="chip" onclick="setMood('🌀 Overwhelmed')">🌀 Overwhelmed</div>
+      </div>
+    </main>
+
+    <footer class="footer-note">
+      Made with 💜 · Your thoughts are safe here · Mental AI 2024
+    </footer>
+  </div>
+
+  <script>
+    function setMood(mood) {
+      document.getElementById('moodInput').value = mood;
+      document.getElementById('moodInput').focus();
+    }
+
+    function goToChat() {
+      const msg = document.getElementById('moodInput').value.trim();
+      if (msg) {
+        sessionStorage.setItem('initialMessage', msg);
+      }
+      window.location.href = 'chat.html';
+    }
+
+    // Also trigger on Enter key
+    document.getElementById('moodInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') goToChat();
+    });
+  </script>
+</body>
+</html>

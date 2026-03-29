@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental AI — Sign In</title>
+  <meta name="description" content="Sign in or create an account for Mental AI wellness companion.">
+  <link rel="stylesheet" href="styles/global.css">
+  <style>
+    .auth-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 44px 40px;
+      background: rgba(255,255,255,0.48);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1.5px solid rgba(255,255,255,0.78);
+      border-radius: 28px;
+      box-shadow: 0 16px 48px rgba(180,120,160,0.18), 0 2px 0 rgba(255,255,255,0.5) inset;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative inner glow */
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(249,168,212,0.35), transparent);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* ---- Forms ---- */
+    .form-panel {
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .form-panel.hidden {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .form-panel.visible {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .auth-icon {
+      font-size: 2.2rem;
+      text-align: center;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .auth-card h2 {
+      text-align: center;
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+      text-align: center;
+      font-size: 0.83rem;
+      color: var(--text-light);
+      margin-bottom: 28px;
+    }
+
+    /* ---- Form Fields ---- */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .field-wrap {
+      position: relative;
+    }
+
+    .field-wrap .field-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .field-wrap input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.45);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      outline: none;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .field-wrap input::placeholder {
+      color: var(--text-light);
+    }
+
+    .field-wrap input:focus {
+      border-color: rgba(192,132,252,0.6);
+      box-shadow: 0 0 0 3px rgba(192,132,252,0.18);
+    }
+
+    /* ---- Submit Button ---- */
+    .auth-submit {
+      width: 100%;
+      padding: 15px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(135deg, #f9a8d4, #c084fc);
+      border: none;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(192,132,252,0.38);
+      transition: all 0.25s ease;
+      letter-spacing: 0.3px;
+    }
+
+    .auth-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(192,132,252,0.5);
+    }
+
+    /* ---- Toggle Text ---- */
+    .toggle-text {
+      text-align: center;
+      font-size: 0.83rem;
+      color: var(--text-light);
+      margin-top: 18px;
+    }
+
+    .toggle-link {
+      color: #c084fc;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: var(--font);
+      font-size: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+
+    .toggle-link:hover {
+      color: #a855f7;
+    }
+
+    /* Forgot password */
+    .forgot-link {
+      text-align: right;
+      font-size: 0.78rem;
+      color: var(--text-light);
+      cursor: pointer;
+      margin-top: -8px;
+    }
+
+    .forgot-link:hover { color: #c084fc; }
+
+    /* ---- Divider ---- */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(180,120,160,0.2);
+    }
+
+    .divider span {
+      font-size: 0.75rem;
+      color: var(--text-light);
+    }
+
+    /* ---- Social Buttons ---- */
+    .social-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-btn {
+      flex: 1;
+      padding: 11px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.4);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 0.83rem;
+      color: var(--text-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.22s ease;
+    }
+
+    .social-btn:hover {
+      background: rgba(255,255,255,0.65);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(180,120,160,0.15);
+    }
+
+    /* Fade animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+      animation: fadeUp 0.38s cubic-bezier(0.34,1.2,0.64,1) both;
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-bg"></div>
+
+  <div class="page-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="navbar-logo">
+        <div class="logo-circle">🌸</div>
+        <div class="logo-text"><span>Mental</span> AI</div>
+      </a>
+      <ul class="navbar-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="signin.html" class="active">Sign In</a></li>
+      </ul>
+      <div class="navbar-profile">👤</div>
+    </nav>
+
+    <div class="auth-center">
+      <div class="auth-card">
+        <!-- === SIGN IN FORM === -->
+        <div id="signinPanel" class="form-panel visible">
+          <span class="auth-icon">🌸</span>
+          <h2>Welcome Back</h2>
+          <p class="auth-subtitle">Sign in to your safe space</p>
+
+          <div class="field-group">
+            <div class="field-wrap">
+              <span class="field-icon">✉️</span>
+              <input type="email" placeholder="Email address" autocomplete="email">
+            </div>
+            <div class="field-wrap">
+              <span class="field-icon">🔒</span>
+              <input type="password" placeholder="Password" autocomplete="current-password">
+            </div>
+            <div class="forgot-link">Forgot password?</div>
+          </div>
+
+          <button class="auth-submit" onclick="window.location.href='index.html'">Sign In</button>
+
+          <div class="divider"><span>or continue with</span></div>
+          <div class="social-row">
+            <button class="social-btn">🌐 Google</button>
+            <button class="social-btn">🍎 Apple</button>
+          </div>
+
+          <p class="toggle-text">
+            Don't have an account?
+            <button class="toggle-link" onclick="switchForm('signup')">Create Account</button>
+          </p>
+        </div>
+
+        <!-- === CREATE ACCOUNT FORM === -->
+        <div id="signupPanel" class="form-panel hidden">
+          <span class="auth-icon">✨</span>
+          <h2>Create Account</h2>
+          <p class="auth-subtitle">Start your wellness journey today</p>
+
+          <div class="field-group">
+            <div class="field-wrap">
+              <span class="field-icon">👤</span>
+              <input type="text" placeholder="Full name" autocomplete="name">
+            </div>
+            <div class="field-wrap">
+              <span class="field-icon">✉️</span>
+              <input type="email" placeholder="Email address" autocomplete="email">
+            </div>
+            <div class="field-wrap">
+              <span class="field-icon">🔒</span>
+              <input type="password" placeholder="Password" autocomplete="new-password">
+            </div>
+            <div class="field-wrap">
+              <span class="field-icon">🔐</span>
+              <input type="password" placeholder="Confirm password" autocomplete="new-password">
+            </div>
+          </div>
+
+          <button class="auth-submit" onclick="window.location.href='index.html'">Create Account</button>
+
+          <p class="toggle-text">
+            Already have an account?
+            <button class="toggle-link" onclick="switchForm('signin')">Sign In</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchForm(target) {
+      const signin = document.getElementById('signinPanel');
+      const signup = document.getElementById('signupPanel');
+      const showing = target === 'signup' ? signup : signin;
+      const hiding  = target === 'signup' ? signin  : signup;
+
+      hiding.classList.remove('visible');
+      hiding.classList.add('hidden');
+
+      // Small delay so hidden state processes before showing
+      setTimeout(() => {
+        showing.classList.remove('hidden');
+        showing.classList.add('visible', 'animate-in');
+        setTimeout(() => showing.classList.remove('animate-in'), 400);
+      }, 50);
+    }
+  </script>
+</body>
+</html>
