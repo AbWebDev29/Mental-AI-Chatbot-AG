@@ -269,19 +269,19 @@
           <h2>Welcome Back</h2>
           <p class="auth-subtitle">Sign in to your safe space</p>
 
-          <div class="field-group">
+          <form id="signInForm" class="field-group">
             <div class="field-wrap">
               <span class="field-icon">✉️</span>
-              <input type="email" placeholder="Email address" autocomplete="email">
+              <input id="email" type="email" placeholder="Email address" autocomplete="email" required>
             </div>
             <div class="field-wrap">
               <span class="field-icon">🔒</span>
-              <input type="password" placeholder="Password" autocomplete="current-password">
+              <input id="password" type="password" placeholder="Password" autocomplete="current-password" required>
             </div>
             <div class="forgot-link">Forgot password?</div>
-          </div>
 
-          <button class="auth-submit" onclick="window.location.href='index.html'">Sign In</button>
+            <button type="submit" class="auth-submit">Sign In</button>
+          </form>
 
           <div class="divider"><span>or continue with</span></div>
           <div class="social-row">
@@ -304,23 +304,25 @@
           <div class="field-group">
             <div class="field-wrap">
               <span class="field-icon">👤</span>
-              <input type="text" placeholder="Full name" autocomplete="name">
+              <input id="fullName" type="text" placeholder="Full name" autocomplete="name" required>
             </div>
             <div class="field-wrap">
               <span class="field-icon">✉️</span>
-              <input type="email" placeholder="Email address" autocomplete="email">
+              <input id="signupEmail" type="email" placeholder="Email address" autocomplete="email" required>
             </div>
             <div class="field-wrap">
               <span class="field-icon">🔒</span>
-              <input type="password" placeholder="Password" autocomplete="new-password">
+              <input id="signupPassword" type="password" placeholder="Password" autocomplete="new-password" required>
             </div>
             <div class="field-wrap">
               <span class="field-icon">🔐</span>
-              <input type="password" placeholder="Confirm password" autocomplete="new-password">
+              <input id="signupConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" required>
             </div>
           </div>
 
-          <button class="auth-submit" onclick="window.location.href='index.html'">Create Account</button>
+          <form id="signupForm" class="field-group">
+            <button type="submit" class="auth-submit">Create Account</button>
+          </form>
 
           <p class="toggle-text">
             Already have an account?
@@ -348,6 +350,93 @@
         setTimeout(() => showing.classList.remove('animate-in'), 400);
       }, 50);
     }
+
+    // Handle Sign In Form
+    async function onSignIn(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/auth/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log("✅ Login Success!", result);
+          localStorage.setItem('user_id', result.user_id);
+          localStorage.setItem('user_name', result.full_name);
+          window.location.href = 'index.html';
+        } else if (response.status === 401) {
+          // Try creating account automatically for new credentials
+          const nameCandidate = email.split('@')[0];
+          const signupResponse = await fetch('http://127.0.0.1:8000/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, full_name: nameCandidate })
+          });
+
+          const signupResult = await signupResponse.json();
+          if (signupResponse.ok) {
+            console.log('✅ Auto-created new account, retrying sign-in');
+            await onSignIn(event); // retry sign-in after creating user
+          } else {
+            alert('Login failed and auto-signup failed: ' + (signupResult.detail || 'Unknown error'));
+          }
+        } else {
+          alert("Login Failed: " + result.detail);
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+      }
+    }
+
+    document.getElementById('signInForm')?.addEventListener('submit', onSignIn);
+
+    async function onSignUp(event) {
+      event.preventDefault();
+      const fullName = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const confirm = document.getElementById('signupConfirm').value;
+
+      if (!fullName || !email || !password || !confirm) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      if (password !== confirm) {
+        alert('Passwords do not match');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, full_name: fullName })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert('Account created! Please sign in.');
+          switchForm('signin');
+        } else {
+          alert('Sign up failed: ' + (result.detail || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Signup fetch error:', error);
+        alert('Network error during signup');
+      }
+    }
+
+    document.getElementById('signupForm')?.addEventListener('submit', onSignUp);
   </script>
 </body>
 </html>

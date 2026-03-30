@@ -105,7 +105,23 @@
       color: var(--text-dark);
     }
 
+<<<<<<< HEAD
     /* ---- Bottom CTA ---- */
+=======
+    /* ---- Highlight Pulse Animation ---- */
+    .highlight-pulse {
+      animation: highlightPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes highlightPulse {
+      0%, 100% {
+        filter: drop-shadow(0 8px 22px rgba(180,120,160,0.22));
+      }
+      50% {
+        filter: drop-shadow(0 8px 28px rgba(249,168,212,0.6)) brightness(1.1);
+      }
+    }
+>>>>>>> b015c38 (Final: support signup/login flow, quota fallback, NLP improvements, UI support enhancements)
     .support-cta {
       margin-top: 60px;
       padding: 32px 40px;
@@ -193,7 +209,11 @@
         </div>
 
         <!-- Folder 2: Self-Care Guides -->
+<<<<<<< HEAD
         <div class="folder-item" onclick="openFolder('selfcare')">
+=======
+        <div id="folder-selfcare" class="folder-item" onclick="openFolder('selfcare')">
+>>>>>>> b015c38 (Final: support signup/login flow, quota fallback, NLP improvements, UI support enhancements)
           <div class="folder-icon">
             <svg viewBox="0 0 140 118" fill="none" xmlns="http://www.w3.org/2000/svg">
               <!-- Tab -->
@@ -245,7 +265,11 @@
         </div>
 
         <!-- Folder 4: Community -->
+<<<<<<< HEAD
         <div class="folder-item" onclick="openFolder('community')">
+=======
+        <div id="folder-community" class="folder-item" onclick="openFolder('community')">
+>>>>>>> b015c38 (Final: support signup/login flow, quota fallback, NLP improvements, UI support enhancements)
           <div class="folder-icon">
             <svg viewBox="0 0 140 118" fill="none" xmlns="http://www.w3.org/2000/svg">
               <!-- Tab -->
@@ -290,6 +314,74 @@
       };
       alert(labels[id] || 'Coming soon!');
     }
+<<<<<<< HEAD
+=======
+
+    async function loadSupportContent() {
+      const userId = localStorage.getItem('user_id');
+      
+      // If no user is logged in, skip dynamic loading
+      if (!userId) {
+        console.log("No user logged in, skipping dynamic support content");
+        return;
+      }
+
+      try {
+        // Fetch latest session from backend
+        const response = await fetch(`http://127.0.0.1:8000/history/${userId}`);
+        const data = await response.json();
+        
+        if (!data.history || data.history.length === 0) {
+          console.log("No history found for user");
+          return;
+        }
+
+        // Get latest session (most recent is at the end)
+        const latest = data.history[data.history.length - 1];
+        const markers = latest.clinical_markers || {};
+        
+        console.log("📊 Latest markers:", markers);
+
+        // 1. Logic: If Thinking is high (>7), highlight Self-Care/Breathing folder
+        if (markers.thinking_intensity && markers.thinking_intensity > 7) {
+          console.log("🧠 High thinking intensity detected! Highlighting self-care guides...");
+          const selfCareFolder = document.getElementById('folder-selfcare');
+          if (selfCareFolder) {
+            selfCareFolder.classList.add('highlight-pulse');
+            // Add suggestion text
+            const suggestion = document.createElement('div');
+            suggestion.style.marginTop = '24px';
+            suggestion.style.textAlign = 'center';
+            suggestion.style.fontSize = '0.85rem';
+            suggestion.style.color = 'var(--text-light)';
+            suggestion.innerHTML = "💡 Based on your last chat, we recommend 'Mind' exercises to calm racing thoughts.";
+            document.querySelector('.folder-grid').parentElement.insertBefore(suggestion, document.querySelector('.support-cta'));
+          }
+        }
+
+        // 2. Logic: If Doing is low (<3), highlight Energy/Motivation folder
+        if (markers.doing_intensity && markers.doing_intensity < 3) {
+          console.log("⚡ Low doing intensity detected! Highlighting motivation guides...");
+          const energyFolder = document.getElementById('folder-community');
+          if (energyFolder) {
+            energyFolder.classList.add('highlight-pulse');
+            const suggestion = document.createElement('div');
+            suggestion.style.marginTop = '24px';
+            suggestion.style.textAlign = 'center';
+            suggestion.style.fontSize = '0.85rem';
+            suggestion.style.color = 'var(--text-light)';
+            suggestion.innerHTML = "⚡ Your energy is low — let's find small wins together in our community!";
+            document.querySelector('.folder-grid').parentElement.insertBefore(suggestion, document.querySelector('.support-cta'));
+          }
+        }
+      } catch (error) {
+        console.error("Error loading support content:", error);
+      }
+    }
+
+    // Load on page init
+    window.addEventListener('DOMContentLoaded', loadSupportContent);
+>>>>>>> b015c38 (Final: support signup/login flow, quota fallback, NLP improvements, UI support enhancements)
   </script>
 </body>
 </html>
