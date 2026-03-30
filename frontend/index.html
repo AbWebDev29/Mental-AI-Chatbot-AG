@@ -241,19 +241,6 @@
       document.getElementById('moodInput').focus();
     }
 
-<<<<<<< HEAD
-    function goToChat() {
-      const msg = document.getElementById('moodInput').value.trim();
-      if (msg) {
-        sessionStorage.setItem('initialMessage', msg);
-      }
-      window.location.href = 'chat.html';
-    }
-
-    // Also trigger on Enter key
-    document.getElementById('moodInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') goToChat();
-=======
     function handleInitialMood() {
       const searchBar = document.getElementById('moodInput');
       const moodText = searchBar.value.trim();
@@ -282,7 +269,6 @@
         e.preventDefault();
         handleInitialMood();
       }
->>>>>>> b015c38 (Final: support signup/login flow, quota fallback, NLP improvements, UI support enhancements)
     });
   </script>
 </body>
