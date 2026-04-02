@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breathe With Me</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0f1a;
+            --deep: #060c14;
+            --mid: #111827;
+            --glow1: #4fc3f7;
+            --glow2: #81d4fa;
+            --glow3: #b3e5fc;
+            --ring1: rgba(79, 195, 247, 0.18);
+            --ring2: rgba(79, 195, 247, 0.09);
+            --ring3: rgba(79, 195, 247, 0.04);
+            --text-main: #e8f4fd;
+            --text-soft: #7ba7c2;
+            --text-dim: #3d6278;
+            --accent: #4fc3f7;
+            --accent-dim: rgba(79, 195, 247, 0.25);
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Jost', sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stars {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            opacity: 0;
+            animation: twinkle var(--d) ease-in-out infinite var(--delay);
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: var(--max-op);
+            }
+        }
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.12;
+            animation: drift 18s ease-in-out infinite alternate;
+        }
+
+        .blob1 {
+            width: 500px;
+            height: 500px;
+            background: #1a4a6e;
+            top: -100px;
+            left: -100px;
+            animation-duration: 20s;
+        }
+
+        .blob2 {
+            width: 400px;
+            height: 400px;
+            background: #0d3a5c;
+            bottom: -80px;
+            right: -80px;
+            animation-duration: 15s;
+            animation-delay: -7s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(40px, 30px) scale(1.08);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            justify-content: center;
+        }
+
+        .header {
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.3s;
+        }
+
+        .title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 6vw, 2.8rem);
+            font-weight: 300;
+            letter-spacing: 0.12em;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .subtitle {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 200;
+            letter-spacing: 0.25em;
+            color: var(--text-soft);
+            text-transform: uppercase;
+        }
+
+        .orb-area {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.6s;
+        }
+
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid var(--accent-dim);
+            pointer-events: none;
+            transition: all 0.05s linear;
+        }
+
+        .ring1 {
+            width: 100%;
+            height: 100%;
+            opacity: 0.4;
+        }
+
+        .ring2 {
+            width: 80%;
+            height: 80%;
+            opacity: 0.25;
+        }
+
+        .ring3 {
+            width: 60%;
+            height: 60%;
+            opacity: 0.15;
+        }
+
+        .bubble-wrap {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            cursor: pointer;
+        }
+
+        .bubble {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 38% 35%, rgba(179, 229, 252, 0.35) 0%, rgba(79, 195, 247, 0.18) 40%, rgba(21, 101, 149, 0.22) 100%);
+            border: 1px solid rgba(79, 195, 247, 0.35);
+            box-shadow: 0 0 40px rgba(79, 195, 247, 0.15), 0 0 80px rgba(79, 195, 247, 0.08), inset 0 0 30px rgba(79, 195, 247, 0.08);
+            transition: transform 0.05s linear, box-shadow 0.05s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bubble::before {
+            content: '';
+            position: absolute;
+            top: 16%;
+            left: 22%;
+            width: 30%;
+            height: 18%;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 50%;
+            transform: rotate(-30deg);
+            filter: blur(3px);
+        }
+
+        .phase-inner {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.85rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            color: rgba(232, 244, 253, 0.9);
+            text-align: center;
+            line-height: 1.3;
+            z-index: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .phase-num {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 300;
+            line-height: 1;
+            color: var(--glow3);
+        }
+
+        .phase-label {
+            margin-top: 2rem;
+            height: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.8s;
+        }
+
+        .phase-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 300;
+            font-style: italic;
+            letter-spacing: 0.08em;
+            color: var(--text-main);
+            transition: opacity 0.4s ease;
+        }
+
+        .phase-hint {
+            font-size: 0.7rem;
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        .pattern-section {
+            margin-top: 2.2rem;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 1s;
+            width: 100%;
+        }
+
+        .pattern-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .pattern-pills {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            padding: 6px 14px;
+            border-radius: 100px;
+            border: 1px solid var(--text-dim);
+            background: transparent;
+            color: var(--text-soft);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 300;
+            letter-spacing: 0.12em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .pill.active {
+            background: rgba(79, 195, 247, 0.12);
+            border-color: var(--accent);
+            color: var(--glow3);
+        }
+
+        .stats {
+            margin-top: 2rem;
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 1.1s;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .stat-name {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .stat-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--text-dim);
+            opacity: 0.3;
+        }
+
+        .btn-wrap {
+            margin-top: 2rem;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 1.2s;
+        }
+
+        .btn {
+            padding: 10px 32px;
+            border-radius: 100px;
+            border: 1px solid rgba(79, 195, 247, 0.5);
+            background: rgba(79, 195, 247, 0.08);
+            color: var(--accent);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn:hover {
+            background: rgba(79, 195, 247, 0.16);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(79, 195, 247, 0.15);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .cycle-dots {
+            display: flex;
+            gap: 8px;
+            margin-top: 1.5rem;
+            justify-content: center;
+            min-height: 10px;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 1.3s;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            transition: all 0.4s ease;
+        }
+
+        .dot.done {
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent);
+        }
+
+        .dot.current {
+            background: var(--glow3);
+            transform: scale(1.4);
+            box-shadow: 0 0 8px rgba(179, 229, 252, 0.6);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .arc-svg {
+            position: absolute;
+            inset: -10px;
+            width: calc(100% + 20px);
+            height: calc(100% + 20px);
+            transform: rotate(-90deg);
+            pointer-events: none;
+        }
+
+        .arc-bg {
+            fill: none;
+            stroke: rgba(79, 195, 247, 0.07);
+            stroke-width: 2;
+        }
+
+        .arc-fill {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 2;
+            stroke-linecap: round;
+            opacity: 0.6;
+            transition: stroke-dashoffset 0.05s linear, opacity 0.4s ease;
+        }
+
+        .complete-msg {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(6, 12, 20, 0.85);
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        .complete-msg.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .complete-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            color: var(--text-main);
+        }
+
+        .complete-sub {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--text-soft);
+            text-transform: uppercase;
+        }
+
+        .complete-btn {
+            margin-top: 1rem;
+            padding: 10px 28px;
+            border-radius: 100px;
+            border: 1px solid rgba(79, 195, 247, 0.5);
+            background: transparent;
+            color: var(--accent);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .complete-btn:hover {
+            background: rgba(79, 195, 247, 0.12);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="complete-msg" id="completeMsg">
+        <div class="complete-title">Well done</div>
+        <div class="complete-sub">You completed your session</div>
+        <button class="complete-btn" onclick="resetSession()">Breathe again</button>
+    </div>
+    <div class="container">
+        <div class="header">
+            <div class="title">breathe with me</div>
+            <div class="subtitle">a moment of calm</div>
+        </div>
+        <div class="orb-area" id="orbArea">
+            <svg class="arc-svg" id="arcSvg" viewBox="0 0 280 280">
+                <circle class="arc-bg" cx="140" cy="140" r="136" />
+                <circle class="arc-fill" id="arcFill" cx="140" cy="140" r="136" />
+            </svg>
+            <div class="ring ring1" id="ring1"></div>
+            <div class="ring ring2" id="ring2"></div>
+            <div class="ring ring3" id="ring3"></div>
+            <div class="bubble-wrap">
+                <div class="bubble" id="bubble">
+                    <div class="phase-inner">
+                        <span class="phase-num" id="countNum">—</span>
+                        <span id="countLabel"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="phase-label">
+            <div class="phase-name" id="phaseName">ready</div>
+            <div class="phase-hint" id="phaseHint">tap start when you're ready</div>
+        </div>
+        <div class="pattern-section">
+            <div class="pattern-label">breathing pattern</div>
+            <div class="pattern-pills">
+                <button class="pill active" data-pattern="box" onclick="selectPattern('box', this)">Box 4-4-4-4</button>
+                <button class="pill" data-pattern="478" onclick="selectPattern('478', this)">4-7-8 calm</button>
+                <button class="pill" data-pattern="deep" onclick="selectPattern('deep', this)">Deep 5-2-5</button>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-val" id="cycleCount">0</div>
+                <div class="stat-name">cycles</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <div class="stat-val" id="timeCount">0</div>
+                <div class="stat-name">seconds</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <div class="stat-val" id="targetCycles">4</div>
+                <div class="stat-name">goal</div>
+            </div>
+        </div>
+        <div class="cycle-dots">
+            <div class="dot" id="dot0"></div>
+            <div class="dot" id="dot1"></div>
+            <div class="dot" id="dot2"></div>
+            <div class="dot" id="dot3"></div>
+        </div>
+        <div class="btn-wrap">
+            <button class="btn" id="startBtn" onclick="toggleSession()">begin</button>
+        </div>
+    </div>
+    <script>
+        const starsEl = document.getElementById('stars');
+        for (let i = 0; i < 120; i++) {
+            const s = document.createElement('div'); s.className = 'star';
+            const size = Math.random() * 1.8 + 0.5;
+            s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random() * 100}%;left:${Math.random() * 100}%;--d:${3 + Math.random() * 5}s;--delay:-${Math.random() * 8}s;--max-op:${0.1 + Math.random() * 0.5};`;
+            starsEl.appendChild(s);
+        }
+        const PATTERNS = {
+            box: { phases: ['inhale', 'hold', 'exhale', 'hold'], durations: [4, 4, 4, 4], goal: 4 },
+            '478': { phases: ['inhale', 'hold', 'exhale'], durations: [4, 7, 8], goal: 4 },
+            deep: { phases: ['inhale', 'hold', 'exhale'], durations: [5, 2, 5], goal: 4 }
+        };
+        const PHASE_LABELS = {
+            inhale: { name: 'inhale', hint: 'breathe in slowly' },
+            exhale: { name: 'exhale', hint: 'let it all go' },
+            hold: { name: 'hold', hint: 'stay here a moment' }
+        };
+        let pattern = PATTERNS.box, running = false, animFrame = null;
+        let cycles = 0, totalSeconds = 0, secondsTimer = null, currentPhaseIdx = 0, baseScale = 1.0;
+        const arc = document.getElementById('arcFill');
+        const arcR = 136, arcCirc = 2 * Math.PI * arcR;
+        arc.style.strokeDasharray = arcCirc; arc.style.strokeDashoffset = arcCirc;
+        function setArc(frac) { arc.style.strokeDashoffset = arcCirc * (1 - frac); }
+        function selectPattern(key, el) {
+            if (running) return; pattern = PATTERNS[key];
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active')); el.classList.add('active');
+            document.getElementById('targetCycles').textContent = pattern.goal; updateDots(0, -1);
+        }
+        function updateDots(done, current) {
+            for (let i = 0; i < 4; i++) {
+                const d = document.getElementById('dot' + i); d.className = 'dot';
+                if (i < done) d.classList.add('done'); else if (i === current) d.classList.add('current');
+            }
+        }
+        function setBubbleScale(s) {
+            document.getElementById('bubble').style.transform = `scale(${s})`;
+            const glow = 40 + (s - 1) * 120;
+            document.getElementById('bubble').style.boxShadow = `0 0 ${glow}px rgba(79,195,247,${0.15 + (s - 1) * 0.3}),0 0 ${glow * 2}px rgba(79,195,247,${0.08 + (s - 1) * 0.15}),inset 0 0 30px rgba(79,195,247,0.08)`;
+            document.getElementById('ring1').style.cssText = `width:${100 + (s - 1) * 60}%;height:${100 + (s - 1) * 60}%;opacity:${0.4 * s};`;
+            document.getElementById('ring2').style.cssText = `width:${80 + (s - 1) * 60}%;height:${80 + (s - 1) * 60}%;opacity:${0.25 * s};`;
+            document.getElementById('ring3').style.cssText = `width:${60 + (s - 1) * 60}%;height:${60 + (s - 1) * 60}%;opacity:${0.15 * s};`;
+        }
+        let tweenStart, tweenDuration, tweenFromScale, tweenToScale, tweenCb;
+        function startTween(from, to, duration, onDone) {
+            cancelAnimationFrame(animFrame); tweenStart = performance.now(); tweenDuration = duration * 1000;
+            tweenFromScale = from; tweenToScale = to; tweenCb = onDone;
+            animFrame = requestAnimationFrame(tweenStep);
+        }
+        function easeInOutSine(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
+        function tweenStep(now) {
+            const elapsed = now - tweenStart, t = Math.min(elapsed / tweenDuration, 1);
+            const eased = easeInOutSine(t), scale = tweenFromScale + (tweenToScale - tweenFromScale) * eased;
+            setBubbleScale(scale); setArc(t);
+            document.getElementById('countNum').textContent = Math.ceil((1 - t) * (tweenDuration / 1000));
+            if (t < 1) { animFrame = requestAnimationFrame(tweenStep); }
+            else { setBubbleScale(tweenToScale); setArc(1); if (tweenCb) tweenCb(); }
+        }
+        function runPhase(idx) {
+            if (!running) return;
+            currentPhaseIdx = idx % pattern.phases.length;
+            const phase = pattern.phases[currentPhaseIdx], dur = pattern.durations[currentPhaseIdx], info = PHASE_LABELS[phase];
+            document.getElementById('phaseName').textContent = info.name;
+            document.getElementById('phaseHint').textContent = info.hint;
+            let fromScale = baseScale, toScale;
+            if (phase === 'inhale') { toScale = 1.55; }
+            else if (phase === 'exhale') { toScale = 0.75; }
+            else { const m = document.getElementById('bubble').style.transform && document.getElementById('bubble').style.transform.match(/scale\((.+)\)/); fromScale = m ? parseFloat(m[1]) : baseScale; toScale = fromScale; }
+            baseScale = toScale; setArc(0);
+            startTween(fromScale, toScale, dur, () => {
+                if (!running) return;
+                if (currentPhaseIdx === pattern.phases.length - 1) {
+                    cycles++; document.getElementById('cycleCount').textContent = cycles;
+                    updateDots(cycles, cycles < pattern.goal ? cycles : -1);
+                    if (cycles >= pattern.goal) { endSession(); return; }
+                }
+                runPhase(currentPhaseIdx + 1);
+            });
+        }
+        function toggleSession() { if (running) stopSession(); else startSession(); }
+        function startSession() {
+            running = true; cycles = 0; totalSeconds = 0;
+            document.getElementById('cycleCount').textContent = 0; document.getElementById('timeCount').textContent = 0;
+            document.getElementById('startBtn').textContent = 'pause';
+            document.querySelectorAll('.pill').forEach(p => p.style.pointerEvents = 'none');
+            secondsTimer = setInterval(() => { if (!running) return; totalSeconds++; document.getElementById('timeCount').textContent = totalSeconds; }, 1000);
+            updateDots(0, 0); runPhase(0);
+        }
+        function stopSession() {
+            running = false; cancelAnimationFrame(animFrame); clearInterval(secondsTimer);
+            document.getElementById('startBtn').textContent = 'resume';
+            document.getElementById('phaseName').textContent = 'paused';
+            document.getElementById('phaseHint').textContent = 'take your time';
+            document.getElementById('countNum').textContent = '—';
+        }
+        function endSession() {
+            running = false; cancelAnimationFrame(animFrame); clearInterval(secondsTimer);
+            setBubbleScale(1.0); setArc(0);
+            setTimeout(() => document.getElementById('completeMsg').classList.add('show'), 600);
+        }
+        function resetSession() {
+            running = false; cancelAnimationFrame(animFrame); clearInterval(secondsTimer);
+            cycles = 0; totalSeconds = 0; baseScale = 1.0; setBubbleScale(1.0); setArc(0);
+            document.getElementById('cycleCount').textContent = 0; document.getElementById('timeCount').textContent = 0;
+            document.getElementById('countNum').textContent = '—'; document.getElementById('countLabel').textContent = '';
+            document.getElementById('phaseName').textContent = 'ready'; document.getElementById('phaseHint').textContent = "tap start when you're ready";
+            document.getElementById('startBtn').textContent = 'begin';
+            document.querySelectorAll('.pill').forEach(p => p.style.pointerEvents = 'all');
+            updateDots(0, -1); document.getElementById('completeMsg').classList.remove('show');
+        }
+        document.getElementById('targetCycles').textContent = pattern.goal;
+        updateDots(0, -1); setBubbleScale(1.0);
+    </script>
+</body>
+
+</html>

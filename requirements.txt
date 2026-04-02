@@ -4,8 +4,9 @@ uvicorn==0.40.0
 python-dotenv==1.0.1
 
 # --- Clinical AI & NLP ---
-google-generativeai==0.8.4
-spacy==3.8.4
+google-genai==1.64.0
+google-generativeai==0.8.6
+spacy==3.8.11
 pydantic[email]==2.12.5
 
 # --- Database & Security ---

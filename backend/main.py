@@ -1,21 +1,21 @@
 import os
 import datetime
+import difflib
 from pathlib import Path
 from dotenv import load_dotenv
-from typing import Optional
+from typing import Optional, List, Dict, Any, Union
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from google import genai
-from google.genai import types
 
-# Internal module imports
-from database import connect_to_mongo, save_session_data, db
-from nlp_engine import get_clinical_markers
 # 1. Environment Configuration
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path, override=True)
+
+# Internal module imports
+from database import connect_to_mongo, save_session_data, db
+from nlp_engine import get_clinical_markers, get_secondary_variation, get_opening_phrase
 
 # 2. Initialization
 app = FastAPI(title="Clinical AI Assistant API")
@@ -29,12 +29,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
-# Initialize Gemini Client for 2026 Stable SDK
-client_ai = genai.Client(
-    api_key=os.getenv("GOOGLE_API_KEY"),
-    http_options=types.HttpOptions(api_version='v1')
 )
 
 @app.on_event("startup")
@@ -54,79 +48,72 @@ async def create_test_user():
 @app.post("/chat")
 async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...)):
     """
-    Processes user message with 'Clinical Memory'.
-    Uses the 3-9 Scale and History to provide targeted mental health support.
+    Processes user message with 'Adaptive Intent Detection' and 'Loop Prevention'.
     """
-    # 1. Run NLP Audit on the current message
-    markers = await get_clinical_markers(message)
-    ai_reply = ""
+    # 1. Fetch Chat History
+    cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(5)
+    history_docs: List[Dict[str, Any]] = await cursor.to_list(length=5)
     
-    try:
-        # 2. FETCH CLINICAL HISTORY (The Memory)
-        # We grab the last 3 entries to see the trend in Thinking/Doing
-        history_cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(3)
-        past_sessions = await history_cursor.to_list(length=3)
-        
-        # Format history for the AI prompt
-        history_context = ""
-        if past_sessions:
-            history_context = "PAST CLINICAL CONTEXT:\n"
-            for s in reversed(past_sessions):
-                m = s.get('clinical_markers', {})
-                history_context += f"- User said: '{s['message']}' | State: {m.get('state')} | Mind Intensity: {m.get('thinking_intensity')}/9\n"
-
-        # 3. CONSTRUCT THE MASTER PROMPT
-        # This uses your 3-9 Scale Theory and Biome concepts
-        system_instruction = f"""
-        ROLE: You are an empathetic Clinical AI Sidekick (Persona: Cherub/Angel).
-        THEORY: You monitor mental health using a 3-9 intensity scale (Thinking vs Doing).
-        
-        {history_context}
-        
-        CURRENT STATE:
-        - Biome: {markers['state']}
-        - Thinking Intensity (Mind): {markers['thinking_intensity']}/9
-        - Doing Intensity (Might): {markers['doing_intensity']}/9
-        
-        USER MESSAGE: "{message}"
-        
-        TASK:
-        1. Acknowledge the user's feelings with deep empathy.
-        2. If Thinking (Mind) is >= 7, guide them with a 'Grounding Game' (like identifying objects in the room).
-        3. If Intensity is low (3-4), offer a 'Micro-Spark' of motivation.
-        4. Refer to the 'Past Context' if it shows a pattern (e.g., 'I noticed you've been feeling lonely in our last few chats').
-        """
-
-        # 4. CALL GEMINI
-        response = client_ai.models.generate_content(
-            model="gemini-2.0-flash", 
-            contents=system_instruction
-        )
-        ai_reply = response.text if response.text else "I am holding space for you. Tell me more."
-
-    except Exception as e:
-        # handle quota and other errors gracefully with i18n-friendly fallback
-        print(f"⚠️ AI ERROR: {str(e)}")
-        if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e).upper():
-            ai_reply = (
-                "I'm currently on fallback mode due to API quota limits,"
-                " but I'm still here to listen: "
-                "".join(["\n", "- Remember that your experience is valid.", "\n", "- You can reflect more deeply on what you shared."])
-            )
-        else:
-            ai_reply = "I'm here, but I'm having a little trouble connecting to my thoughts. I've noted your feelings."
-
-    # 5. SAVE TO MONGODB (Ensures clinical persistence)
-    session_entry = {
-        "user_id": user_id,
-        "timestamp": datetime.datetime.utcnow(),
-        "message": message,
-        "ai_reply": ai_reply,
-        "clinical_markers": markers
-    }
-    await save_session_data(user_id, session_entry)
+    # Extract Last AI message for 'Question-Answer Detection'
+    last_ai_msg = history_docs[0].get("ai_reply", "") if history_docs else ""
+    # Use a loop to avoid slice-related lint issues in certain environments
+    last_responses = []
+    for doc in history_docs:
+        if len(last_responses) >= 2: break
+        last_responses.append(str(doc.get("ai_reply", "")))
     
-    return {"reply": ai_reply, "analysis": markers}
+    # 2. Sequential Logic: Did the user answer a relief question?
+    relief_keywords = ["show", "game", "movie", "distraction", "relief", "quit"]
+    user_answered_relief = any(kw in message.lower() for kw in relief_keywords)
+    ai_asked_relief = "?" in last_ai_msg and ("relief" in last_ai_msg.lower() or "look like" in last_ai_msg.lower())
+    
+    # 3. Clean History for Reasoning
+    history_docs = list(reversed(history_docs))
+    clean_history = [
+        {"user": doc.get("message", ""), "ai": doc.get("ai_reply", ""), "markers": doc.get("markers", {})}
+        for doc in history_docs
+    ]
+    
+    # Reset context if major shift, but preserve crisis memory
+    recent_is_crisis = any("dissociation" in str(doc.get("markers", {}).get("mental_health_pattern", "")).lower() for doc in history_docs)
+    
+    reset_context = False
+    IDENTITY_KEYWORDS = {"mirror", "myself", "identity", "tricking", "bad person"}
+    if any(kw in message.lower() for kw in IDENTITY_KEYWORDS) and not recent_is_crisis:
+        # Topic shift detect logic can be expanded here
+        pass
+
+    # 4. Primary Reasoning (Adaptive)
+    markers = await get_clinical_markers(message, history=clean_history, reset_context=reset_context)
+    ai_reply = str(markers.get("ai_reply", "I'm listening.")).strip()
+
+    # 5. ANTI-IDENTICAL & LOOP PREVENTION
+    is_repeat = False
+    hard_pivot_msg = ""
+    
+    # Check last 2 AI replies for semantic match
+    for i, prev_reply in enumerate(last_responses):
+        ratio = difflib.SequenceMatcher(None, ai_reply.lower(), prev_reply.lower()).ratio()
+        
+        if ai_reply.strip() == prev_reply.strip():
+            print(f"🚨 EXACT MATCH DETECTED: Forcing Breathing Pivot")
+            hard_pivot_msg = "I want to make sure I'm truly listening. Let's set the usual talk aside—how are you actually breathing right now? Is it shallow or deep?"
+            is_repeat = True
+            break
+        elif ratio > 0.7:
+            print(f"⚠️ SEMANTIC MATCH (>70%): Forcing Sleep Pivot")
+            hard_pivot_msg = "I want to make sure I'm not just repeating myself while you're going through this. Let's look at one specific thing: How is your sleep holding up through all this stress?"
+            is_repeat = True
+            break
+            
+    if is_repeat:
+        ai_reply = hard_pivot_msg
+        markers["ai_reply"] = ai_reply
+        markers["source"] = "absolute_repetition_guard"
+
+    # 6. Save and Return
+    await save_session_data(user_id, message, ai_reply, markers)
+    return {"reply": ai_reply, "analysis": markers, "markers": markers}
 
 # --- AUTH ROUTES ---
 class UserAuth(BaseModel):
@@ -163,19 +150,16 @@ async def signin(auth: UserAuth):
 @app.get("/history/{user_id}")
 async def get_patient_history(user_id: str):
     """
-    Retrieves the chronological journey of the user.
+    Returns the latest 5 sessions for this user.
     """
     try:
-        cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", 1)
-        history = await cursor.to_list(length=100)
-        
-        if not history:
-            return {"user_id": user_id, "count": 0, "history": []}
+        cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(5)
+        history = await cursor.to_list(length=5)
 
         for entry in history:
             entry["_id"] = str(entry["_id"])
-            
-        return {"user_id": user_id, "count": len(history), "history": history}
+
+        return history
     except Exception as e:
         print(f"❌ HISTORY ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail="Database retrieval failed")

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worry Jar</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #fdf8f3;
+            --surface: #ffffff;
+            --border: rgba(0, 0, 0, 0.07);
+            --border2: rgba(0, 0, 0, 0.12);
+            --text: #1a1208;
+            --muted: #8a7a6a;
+            --soft: #c4a882;
+            --accent: #d4793a;
+            --accent-light: #f5e6d7;
+            --jar: #8fbcd4;
+            --jar-dark: #5a9abc;
+            --paper: #fffdf7;
+            --paper-line: rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem 4rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23fdf8f3'/%3E%3Ccircle cx='1' cy='1' r='0.5' fill='rgba(0,0,0,0.03)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 560px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-family: 'Lora', serif;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 400;
+            color: var(--text);
+            line-height: 1.15;
+        }
+
+        .header h1 span {
+            display: block;
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .header p {
+            margin-top: 0.8rem;
+            color: var(--muted);
+            font-weight: 300;
+            font-size: 0.9rem;
+            line-height: 1.65;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .steps {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .step-pip {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--border2);
+            transition: all 0.3s;
+        }
+
+        .step-pip.active {
+            background: var(--accent);
+            transform: scale(1.4);
+        }
+
+        .step-pip.done {
+            background: var(--soft);
+        }
+
+        .paper {
+            width: 100%;
+            background: var(--paper);
+            border: 1px solid var(--border2);
+            border-radius: 4px;
+            box-shadow: 2px 3px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            padding: 1.75rem;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .paper::before {
+            content: '';
+            position: absolute;
+            left: 52px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(200, 100, 80, 0.15);
+        }
+
+        .paper-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .paper-lines::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: repeating-linear-gradient(transparent, transparent 27px, var(--paper-line) 27px, var(--paper-line) 28px);
+            background-position: 0 48px;
+        }
+
+        .paper label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--soft);
+            margin-bottom: 10px;
+            padding-left: 2px;
+        }
+
+        .paper textarea {
+            width: 100%;
+            min-height: 120px;
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: 'Lora', serif;
+            font-size: 1rem;
+            color: var(--text);
+            line-height: 28px;
+            font-weight: 400;
+        }
+
+        .paper textarea::placeholder {
+            color: rgba(138, 122, 106, 0.45);
+            font-style: italic;
+        }
+
+        .paper-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 11px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border2);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--surface);
+            color: var(--muted);
+        }
+
+        .btn:hover {
+            background: var(--accent-light);
+            border-color: var(--soft);
+            color: var(--accent);
+        }
+
+        .btn.primary {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn.primary:hover {
+            background: #c06828;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: default;
+            transform: none;
+        }
+
+        .crumple-zone {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .crumple-zone.show {
+            display: flex;
+        }
+
+        .crumple-ball {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--paper);
+            border: 1px solid var(--border2);
+            box-shadow: 2px 3px 12px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .crumple-ball:hover {
+            transform: scale(1.04);
+        }
+
+        .crumple-ball:active {
+            transform: scale(0.94);
+        }
+
+        .crumple-ball .inner {
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .crumple-hint {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-align: center;
+            font-weight: 300;
+        }
+
+        @keyframes squeeze {
+            0% {
+                transform: scale(1);
+            }
+
+            30% {
+                transform: scale(0.88, 1.06);
+            }
+
+            60% {
+                transform: scale(1.06, 0.92);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .crumple-ball.squeezing {
+            animation: squeeze 0.3s ease;
+        }
+
+        .crumple-progress {
+            width: 80px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .crumple-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .jar-section {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .jar-section.show {
+            display: flex;
+        }
+
+        .jar-wrap {
+            position: relative;
+            width: 160px;
+            height: 200px;
+            cursor: pointer;
+        }
+
+        .jar-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .paper-ball-fly {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--paper);
+            border: 1px solid var(--border2);
+            box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: fly-into-jar 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes fly-into-jar {
+            0% {
+                top: -20px;
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+
+            60% {
+                top: 80px;
+                opacity: 1;
+                transform: translateX(-50%) scale(0.8);
+            }
+
+            100% {
+                top: 120px;
+                opacity: 0;
+                transform: translateX(-50%) scale(0.3);
+            }
+        }
+
+        .jar-hint {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .affirmation-card {
+            display: none;
+            width: 100%;
+            background: linear-gradient(135deg, #f9f0e8 0%, #fff 100%);
+            border: 1px solid rgba(212, 121, 58, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            animation: bloom 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .affirmation-card.show {
+            display: block;
+        }
+
+        @keyframes bloom {
+            from {
+                opacity: 0;
+                transform: scale(0.85);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .affirmation-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .affirmation-text {
+            font-family: 'Lora', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text);
+            line-height: 1.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .affirmation-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--soft);
+            font-weight: 500;
+        }
+
+        .after-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .count-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        .jar-fills {
+            transition: all 0.5s;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Let it go into<br><span>the worry jar</span></h1>
+            <p>Write your worry down, crumple it up, and toss it away. Then receive something kinder in return.</p>
+        </div>
+        <div class="steps">
+            <div class="step-pip active" id="pip0"></div>
+            <div class="step-pip" id="pip1"></div>
+            <div class="step-pip" id="pip2"></div>
+            <div class="step-pip" id="pip3"></div>
+        </div>
+        <div class="paper-wrapper" id="stepWrite" style="width:100%">
+            <div class="paper">
+                <div class="paper-lines"></div>
+                <label>Your worry</label>
+                <textarea id="worryText" placeholder="What's weighing on your mind right now?" rows="5"></textarea>
+                <div class="paper-actions">
+                    <button class="btn primary" id="btnCrumple" onclick="toCrumple()" disabled>Crumple it up →</button>
+                </div>
+            </div>
+        </div>
+        <div class="crumple-zone" id="stepCrumple">
+            <div style="text-align:center">
+                <p style="font-size:0.85rem;color:var(--muted);font-weight:300;margin-bottom:1.25rem">Keep tapping until
+                    it's fully crumpled</p>
+                <div class="crumple-ball" id="crumpleBall" onclick="squeeze()">
+                    <svg class="crumple-lines" viewBox="0 0 80 80" id="crumpleSvg"
+                        style="position:absolute;top:0;left:0;width:100%;height:100%">
+                        <circle cx="40" cy="40" r="38" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="1" />
+                    </svg>
+                    <span class="inner" id="crumpleEmoji">📄</span>
+                </div>
+            </div>
+            <div class="crumple-progress">
+                <div class="crumple-fill" id="crumpleFill"></div>
+            </div>
+            <div class="crumple-hint" id="crumpleHint">Tap the paper ball</div>
+        </div>
+        <div class="jar-section" id="stepJar">
+            <div style="text-align:center">
+                <p style="font-size:0.85rem;color:var(--muted);font-weight:300;margin-bottom:1.25rem">Now toss it into
+                    the jar</p>
+            </div>
+            <div class="jar-wrap" onclick="throwInJar()">
+                <div class="paper-ball-fly" id="flyBall"></div>
+                <svg class="jar-svg" viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="jarClip">
+                            <path d="M30 70 Q28 80 26 130 Q24 170 80 175 Q136 170 134 130 Q132 80 130 70 Z" />
+                        </clipPath>
+                    </defs>
+                    <path d="M30 70 Q28 80 26 130 Q24 170 80 175 Q136 170 134 130 Q132 80 130 70 Z" fill="#e8f4fd"
+                        stroke="#b8d8ed" stroke-width="1.5" />
+                    <g clip-path="url(#jarClip)">
+                        <rect id="jarFill" x="20" y="175" width="120" height="0" fill="#b8d8ed" opacity="0.5"
+                            style="transition:all 0.8s cubic-bezier(0.16,1,0.3,1)" />
+                        <rect id="jarFillShimmer" x="20" y="175" width="120" height="0" fill="rgba(255,255,255,0.3)"
+                            style="transition:all 0.8s cubic-bezier(0.16,1,0.3,1)" />
+                    </g>
+                    <g id="paperPieces" opacity="0.7"></g>
+                    <path d="M50 50 Q48 60 45 70 L115 70 Q112 60 110 50 Z" fill="#e8f4fd" stroke="#b8d8ed"
+                        stroke-width="1.5" />
+                    <rect x="44" y="38" width="72" height="16" rx="4" fill="#c8e0f0" stroke="#a8ccdf"
+                        stroke-width="1" />
+                    <rect x="60" y="34" width="40" height="8" rx="3" fill="#c8e0f0" stroke="#a8ccdf" stroke-width="1" />
+                    <path d="M40 90 Q42 120 44 150" stroke="rgba(255,255,255,0.5)" stroke-width="3" fill="none"
+                        stroke-linecap="round" />
+                    <rect x="45" y="115" width="70" height="28" rx="3" fill="rgba(255,255,255,0.6)"
+                        stroke="rgba(180,210,235,0.5)" stroke-width="0.5" />
+                    <text x="80" y="130" text-anchor="middle" font-family="'Lora',serif" font-size="8" fill="#7aabcc"
+                        font-style="italic">worry jar</text>
+                    <text x="80" y="140" text-anchor="middle" font-family="'Inter',sans-serif" font-size="6.5"
+                        fill="#9bbfd6" font-weight="300" letter-spacing="0.05em">SAFE INSIDE</text>
+                </svg>
+            </div>
+            <div class="jar-hint">Tap the jar to release it</div>
+        </div>
+        <div class="affirmation-card" id="stepAffirm">
+            <span class="affirmation-icon" id="affirmIcon">🌸</span>
+            <p class="affirmation-text" id="affirmText"></p>
+            <div class="affirmation-label">a little something for you</div>
+            <div class="after-actions">
+                <button class="btn" onclick="newWorry()" style="flex:0 0 auto">Write another</button>
+                <button class="btn primary" onclick="newWorry()" style="flex:0 0 auto">✓ Done for now</button>
+            </div>
+        </div>
+        <div class="count-display" id="countDisplay" style="display:none">
+            <span>🫙</span><span id="countText"></span>
+        </div>
+    </div>
+    <script>
+        const affirmations = [{ icon: '🌱', text: 'You are not your worries. They are clouds passing through a vast, clear sky.' }, { icon: '💧', text: 'It takes courage to name what hurts. You just did something brave.' }, { icon: '🕊️', text: "You don't have to solve everything today. Rest is also a form of progress." }, { icon: '✨', text: "Your worth isn't measured by how much you carry. You matter, just as you are." }, { icon: '🌊', text: "Like water, you find a way. This feeling won't last forever." }, { icon: '🌸', text: 'Being gentle with yourself is not weakness. It\'s wisdom.' }, { icon: '☀️', text: 'Even in uncertain moments, you are safe right now, in this breath, in this moment.' }, { icon: '🫶', text: "You don't have to be okay all the time. What you feel is valid." }, { icon: '🌿', text: "Worries feel smaller when we look at them. You've already made this one smaller." }, { icon: '🌙', text: "Every difficult day has led you here. And here, you are still standing." }];
+        let worryCount = 0, crumpleCount = 0; const maxCrumples = 7;
+        const crumpleTexts = ['Keep going...', 'Almost...', 'Just a little more...', 'Nearly there...', 'One more...', 'So close!', 'Release it!', 'Done!'];
+        document.getElementById('worryText').addEventListener('input', function () { document.getElementById('btnCrumple').disabled = this.value.trim().length < 3; });
+        function setStep(n) {
+            ['pip0', 'pip1', 'pip2', 'pip3'].forEach((id, i) => { document.getElementById(id).className = 'step-pip' + (n === i ? ' active' : n > i ? ' done' : ''); });
+        }
+        function toCrumple() { document.getElementById('stepWrite').style.display = 'none'; document.getElementById('stepCrumple').classList.add('show'); crumpleCount = 0; updateCrumpleBall(); setStep(1); }
+        function updateCrumpleBall() {
+            const pct = (crumpleCount / maxCrumples) * 100; document.getElementById('crumpleFill').style.width = pct + '%';
+            const emojis = ['📄', '📃', '📄', '🗒️', '📝', '📝', '📋', '🗞️']; document.getElementById('crumpleEmoji').textContent = emojis[Math.min(crumpleCount, emojis.length - 1)];
+            if (crumpleCount >= maxCrumples) { document.getElementById('crumpleHint').textContent = 'Fully crumpled! Now toss it in →'; document.getElementById('crumpleBall').style.background = 'var(--accent-light)'; setTimeout(() => toJar(), 600); }
+            else { document.getElementById('crumpleHint').textContent = crumpleTexts[crumpleCount] || 'Keep going...'; }
+            if (crumpleCount > 0 && crumpleCount < maxCrumples) { const svg = document.getElementById('crumpleSvg'), line = document.createElementNS('http://www.w3.org/2000/svg', 'line'); const ang = Math.random() * Math.PI * 2, r1 = 5 + Math.random() * 30, r2 = 5 + Math.random() * 30; line.setAttribute('x1', 40 + Math.cos(ang) * r1); line.setAttribute('y1', 40 + Math.sin(ang) * r1); line.setAttribute('x2', 40 + Math.cos(ang + 1.2) * r2); line.setAttribute('y2', 40 + Math.sin(ang + 1.2) * r2); line.setAttribute('stroke', 'rgba(0,0,0,0.1)'); line.setAttribute('stroke-width', '1'); svg.appendChild(line); }
+        }
+        function squeeze() { if (crumpleCount >= maxCrumples) return; crumpleCount++; const ball = document.getElementById('crumpleBall'); ball.classList.remove('squeezing'); void ball.offsetWidth; ball.classList.add('squeezing'); setTimeout(() => ball.classList.remove('squeezing'), 300); updateCrumpleBall(); }
+        function toJar() { document.getElementById('stepCrumple').classList.remove('show'); document.getElementById('stepJar').classList.add('show'); setStep(2); }
+        function throwInJar() {
+            const fly = document.getElementById('flyBall'); fly.style.display = 'block';
+            setTimeout(() => { fly.style.display = 'none'; worryCount++; updateJarFill(); setTimeout(() => showAffirmation(), 400); }, 800);
+        }
+        function updateJarFill() {
+            const fillH = Math.min(worryCount * 15, 90), fillY = 175 - fillH;
+            document.getElementById('jarFill').setAttribute('y', fillY); document.getElementById('jarFill').setAttribute('height', fillH);
+            document.getElementById('jarFillShimmer').setAttribute('y', fillY); document.getElementById('jarFillShimmer').setAttribute('height', Math.min(fillH * 0.3, 12));
+            if (worryCount <= 6) { const g = document.getElementById('paperPieces'), scrap = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); const x = 45 + Math.random() * 60, y = 145 - Math.random() * Math.max(0, fillH - 10); scrap.setAttribute('x', x); scrap.setAttribute('y', y); scrap.setAttribute('width', 6 + Math.random() * 8); scrap.setAttribute('height', 5 + Math.random() * 6); scrap.setAttribute('rx', '1'); scrap.setAttribute('transform', `rotate(${-30 + Math.random() * 60},${x},${y})`); scrap.setAttribute('fill', 'rgba(255,255,255,0.8)'); scrap.setAttribute('stroke', 'rgba(0,0,0,0.08)'); scrap.setAttribute('stroke-width', '0.5'); g.appendChild(scrap); }
+        }
+        function showAffirmation() {
+            document.getElementById('stepJar').classList.remove('show');
+            const pick = affirmations[Math.floor(Math.random() * affirmations.length)];
+            document.getElementById('affirmIcon').textContent = pick.icon; document.getElementById('affirmText').textContent = pick.text;
+            document.getElementById('stepAffirm').classList.add('show'); setStep(3);
+            const cd = document.getElementById('countDisplay'); cd.style.display = 'flex';
+            document.getElementById('countText').textContent = worryCount === 1 ? '1 worry safely stored' : `${worryCount} worries safely stored`;
+        }
+        function newWorry() {
+            document.getElementById('stepAffirm').classList.remove('show'); document.getElementById('stepWrite').style.display = '';
+            document.getElementById('worryText').value = ''; document.getElementById('btnCrumple').disabled = true; crumpleCount = 0;
+            document.getElementById('crumpleFill').style.width = '0%'; document.getElementById('crumpleEmoji').textContent = '📄'; document.getElementById('crumpleBall').style.background = '';
+            const svg = document.getElementById('crumpleSvg'); while (svg.children.length > 1) svg.removeChild(svg.lastChild);
+            setStep(0); setTimeout(() => document.getElementById('worryText').focus(), 300);
+        }
+    </script>
+</body>
+
+</html>

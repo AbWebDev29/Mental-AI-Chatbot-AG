@@ -54,6 +54,115 @@ html, body {
   animation: gradientFlow 18s ease infinite;
 }
 
+/* ---------- Dynamic Support Page State Themes ---------- */
+.theme-positive .gradient-bg {
+  background: linear-gradient(
+    135deg,
+    #edfbe9,
+    #fff7cf,
+    #e7f7d7,
+    #fff3b8
+  );
+  background-size: 300% 300%;
+}
+
+.theme-positive .page-wrapper {
+  box-shadow: inset 0 0 120px rgba(160, 210, 120, 0.14);
+}
+
+.theme-support .gradient-bg {
+  background: linear-gradient(
+    135deg,
+    #e7f1ff,
+    #f3e8ff,
+    #ffeaf2,
+    #dff0ff
+  );
+  background-size: 300% 300%;
+}
+
+.theme-support .page-wrapper {
+  box-shadow: inset 0 0 120px rgba(130, 170, 220, 0.14);
+}
+
+.theme-anxious .gradient-bg {
+  background: linear-gradient(
+    135deg,
+    #e6f7ff,
+    #dff4f7,
+    #e7f0ff,
+    #e6fffb
+  );
+  background-size: 300% 300%;
+}
+
+.theme-anxious .page-wrapper {
+  box-shadow: inset 0 0 120px rgba(120, 180, 210, 0.16);
+}
+
+.state-positive .gradient-bg {
+  background: linear-gradient(
+    135deg,
+    #e7f9ef,
+    #d6f5e3,
+    #d7f2ff,
+    #f0ffe8
+  );
+  background-size: 300% 300%;
+}
+
+.state-positive .page-wrapper {
+  box-shadow: inset 0 0 120px rgba(92, 198, 140, 0.16);
+}
+
+.state-needs-support .gradient-bg {
+  background: linear-gradient(
+    135deg,
+    #ffe7ea,
+    #ffe6d6,
+    #ffeedb,
+    #fce8ff
+  );
+  background-size: 300% 300%;
+}
+
+.state-needs-support .page-wrapper {
+  box-shadow: inset 0 0 120px rgba(251, 146, 60, 0.16);
+}
+
+/* ---------- Shared Attention Animation ---------- */
+.pulse-attention {
+  animation: pulseAttention 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes pulseAttention {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 8px 22px rgba(180,120,160,0.22));
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 12px 30px rgba(147,197,253,0.55));
+  }
+}
+
+.pulse-highlight {
+  animation: pulseHighlight 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes pulseHighlight {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 8px 22px rgba(180,120,160,0.22));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 12px 30px rgba(249,168,212,0.55));
+  }
+}
+
 @keyframes gradientFlow {
   0%   { background-position: 0% 50%; }
   25%  { background-position: 100% 50%; }
@@ -78,8 +187,8 @@ html, body {
   justify-content: space-between;
   padding: 18px 40px;
   background: rgba(255,255,255,0.35);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--white-glass-border);
   position: sticky;
   top: 0;
@@ -165,8 +274,8 @@ html, body {
 /* ---------- Glassmorphism Card ---------- */
 .glass-card {
   background: rgba(255,255,255,0.45);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border: 1.5px solid rgba(255,255,255,0.75);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);

@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-4-3-2-1 Grounding</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #e6edf3;
+            --muted: #7d8590;
+            --see: #79c0ff;
+            --touch: #56d364;
+            --hear: #f78166;
+            --smell: #d2a8ff;
+            --taste: #ffa657;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem 1rem 4rem;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(ellipse at 20% 30%, rgba(121, 192, 255, 0.04) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(210, 168, 255, 0.04) 0%, transparent 60%);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            padding-top: 1rem;
+        }
+
+        .header h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: var(--text);
+        }
+
+        .header h1 em {
+            font-style: italic;
+            color: var(--see);
+        }
+
+        .header p {
+            margin-top: 0.75rem;
+            color: var(--muted);
+            font-size: 0.95rem;
+            font-weight: 300;
+            line-height: 1.6;
+            max-width: 380px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-track {
+            width: 100%;
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .track-dot {
+            width: 32px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border);
+            transition: background 0.5s ease;
+        }
+
+        .track-dot.active {
+            background: var(--see);
+        }
+
+        .track-dot.done {
+            background: rgba(121, 192, 255, 0.35);
+        }
+
+        .sense-card {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .sense-card.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sense-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sense-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .sense-meta {
+            flex: 1;
+        }
+
+        .sense-meta .count-label {
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .sense-meta h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.4rem;
+            font-weight: 400;
+        }
+
+        .sense-meta .prompt {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 2px;
+            font-weight: 300;
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .item-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .item-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted);
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .item-number.filled {
+            border-color: currentColor;
+        }
+
+        .item-input {
+            flex: 1;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 300;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .item-input::placeholder {
+            color: var(--muted);
+            opacity: 0.6;
+        }
+
+        .item-input:focus {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--surface);
+        }
+
+        .check-mark {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .check-mark.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .check-mark svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .btn-next {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .btn-next.ready {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .btn-next.ready:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
+
+        .sense-see .sense-icon {
+            background: rgba(121, 192, 255, 0.12);
+        }
+
+        .sense-see .count-label,
+        .sense-see h2 {
+            color: var(--see);
+        }
+
+        .sense-see .item-number.filled {
+            color: var(--see);
+        }
+
+        .sense-see .btn-next.ready {
+            background: var(--see);
+            color: #0d1117;
+        }
+
+        .sense-see .check-mark svg path {
+            stroke: var(--see);
+        }
+
+        .sense-see .item-input:focus {
+            border-color: rgba(121, 192, 255, 0.4);
+        }
+
+        .sense-touch .sense-icon {
+            background: rgba(86, 211, 100, 0.12);
+        }
+
+        .sense-touch .count-label,
+        .sense-touch h2 {
+            color: var(--touch);
+        }
+
+        .sense-touch .item-number.filled {
+            color: var(--touch);
+        }
+
+        .sense-touch .btn-next.ready {
+            background: var(--touch);
+            color: #0d1117;
+        }
+
+        .sense-touch .check-mark svg path {
+            stroke: var(--touch);
+        }
+
+        .sense-touch .item-input:focus {
+            border-color: rgba(86, 211, 100, 0.4);
+        }
+
+        .sense-hear .sense-icon {
+            background: rgba(247, 129, 102, 0.12);
+        }
+
+        .sense-hear .count-label,
+        .sense-hear h2 {
+            color: var(--hear);
+        }
+
+        .sense-hear .item-number.filled {
+            color: var(--hear);
+        }
+
+        .sense-hear .btn-next.ready {
+            background: var(--hear);
+            color: #0d1117;
+        }
+
+        .sense-hear .check-mark svg path {
+            stroke: var(--hear);
+        }
+
+        .sense-hear .item-input:focus {
+            border-color: rgba(247, 129, 102, 0.4);
+        }
+
+        .sense-smell .sense-icon {
+            background: rgba(210, 168, 255, 0.12);
+        }
+
+        .sense-smell .count-label,
+        .sense-smell h2 {
+            color: var(--smell);
+        }
+
+        .sense-smell .item-number.filled {
+            color: var(--smell);
+        }
+
+        .sense-smell .btn-next.ready {
+            background: var(--smell);
+            color: #0d1117;
+        }
+
+        .sense-smell .check-mark svg path {
+            stroke: var(--smell);
+        }
+
+        .sense-smell .item-input:focus {
+            border-color: rgba(210, 168, 255, 0.4);
+        }
+
+        .sense-taste .sense-icon {
+            background: rgba(255, 166, 87, 0.12);
+        }
+
+        .sense-taste .count-label,
+        .sense-taste h2 {
+            color: var(--taste);
+        }
+
+        .sense-taste .item-number.filled {
+            color: var(--taste);
+        }
+
+        .sense-taste .btn-next.ready {
+            background: var(--taste);
+            color: #0d1117;
+        }
+
+        .sense-taste .check-mark svg path {
+            stroke: var(--taste);
+        }
+
+        .sense-taste .item-input:focus {
+            border-color: rgba(255, 166, 87, 0.4);
+        }
+
+        .reward-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: particle-fly 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes particle-fly {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(var(--dx), var(--dy)) scale(0.3);
+            }
+        }
+
+        .completion {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            text-align: center;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .completion.show {
+            display: flex;
+        }
+
+        .completion-orb {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(121, 192, 255, 0.6), rgba(210, 168, 255, 0.4));
+            box-shadow: 0 0 40px rgba(121, 192, 255, 0.3), 0 0 80px rgba(210, 168, 255, 0.15);
+            animation: pulse-orb 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-orb {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .completion h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            color: var(--text);
+        }
+
+        .completion p {
+            color: var(--muted);
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 360px;
+            font-size: 0.95rem;
+        }
+
+        .sense-summary {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+        }
+
+        .summary-badge {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            min-width: 52px;
+            text-align: center;
+        }
+
+        .summary-items {
+            color: var(--muted);
+            font-weight: 300;
+            flex: 1;
+        }
+
+        .btn-restart {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 32px;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-restart:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--text);
+        }
+
+        .breathing-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        .breath-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--muted);
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(0.5);
+                opacity: 0.4;
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stars"></div>
+    <div class="reward-overlay" id="rewardOverlay"></div>
+    <div class="container">
+        <div class="header">
+            <h1>Ground yourself<br>in <em>this moment</em></h1>
+            <p>A gentle sensory exercise to bring you back to the present. Take your time with each sense.</p>
+        </div>
+        <div class="breathing-hint">
+            <div class="breath-dot"></div><span>Breathe slowly as you go</span>
+        </div>
+        <div class="progress-track" id="progressTrack"></div>
+        <div class="sense-card sense-see active" id="card-0">
+            <div class="sense-header">
+                <div class="sense-icon">👁️</div>
+                <div class="sense-meta">
+                    <div class="count-label">5 things</div>
+                    <h2>You can see</h2>
+                    <div class="prompt">Look around slowly. Name 5 things in your space right now.</div>
+                </div>
+            </div>
+            <div class="items-list" id="list-0"></div>
+            <button class="btn-next" id="btn-0" onclick="nextSense(0)">Continue →</button>
+        </div>
+        <div class="sense-card sense-touch" id="card-1">
+            <div class="sense-header">
+                <div class="sense-icon">🤚</div>
+                <div class="sense-meta">
+                    <div class="count-label">4 things</div>
+                    <h2>You can touch</h2>
+                    <div class="prompt">What textures or surfaces can you feel right now?</div>
+                </div>
+            </div>
+            <div class="items-list" id="list-1"></div>
+            <button class="btn-next" id="btn-1" onclick="nextSense(1)">Continue →</button>
+        </div>
+        <div class="sense-card sense-hear" id="card-2">
+            <div class="sense-header">
+                <div class="sense-icon">👂</div>
+                <div class="sense-meta">
+                    <div class="count-label">3 things</div>
+                    <h2>You can hear</h2>
+                    <div class="prompt">Close your eyes for a moment. Listen. What do you notice?</div>
+                </div>
+            </div>
+            <div class="items-list" id="list-2"></div>
+            <button class="btn-next" id="btn-2" onclick="nextSense(2)">Continue →</button>
+        </div>
+        <div class="sense-card sense-smell" id="card-3">
+            <div class="sense-header">
+                <div class="sense-icon">🌿</div>
+                <div class="sense-meta">
+                    <div class="count-label">2 things</div>
+                    <h2>You can smell</h2>
+                    <div class="prompt">Take a slow breath in. What scents are present around you?</div>
+                </div>
+            </div>
+            <div class="items-list" id="list-3"></div>
+            <button class="btn-next" id="btn-3" onclick="nextSense(3)">Continue →</button>
+        </div>
+        <div class="sense-card sense-taste" id="card-4">
+            <div class="sense-header">
+                <div class="sense-icon">✨</div>
+                <div class="sense-meta">
+                    <div class="count-label">1 thing</div>
+                    <h2>You can taste</h2>
+                    <div class="prompt">What do you notice in your mouth right now?</div>
+                </div>
+            </div>
+            <div class="items-list" id="list-4"></div>
+            <button class="btn-next" id="btn-4" onclick="complete()">Complete →</button>
+        </div>
+        <div class="completion" id="completion">
+            <div class="completion-orb"></div>
+            <div>
+                <h2>You're here. Present.</h2>
+                <p style="margin-top:0.75rem;">You've anchored yourself to this moment. Your body is safe, your senses
+                    are alive, and you are exactly where you need to be.</p>
+            </div>
+            <div class="sense-summary" id="senseSummary"></div>
+            <button class="btn-restart" onclick="restart()">Start again</button>
+        </div>
+    </div>
+    <script>
+        const senses = [{ count: 5, label: 'Saw', color: '#79c0ff', bg: 'rgba(121,192,255,0.12)' }, { count: 4, label: 'Touched', color: '#56d364', bg: 'rgba(86,211,100,0.12)' }, { count: 3, label: 'Heard', color: '#f78166', bg: 'rgba(247,129,102,0.12)' }, { count: 2, label: 'Smelled', color: '#d2a8ff', bg: 'rgba(210,168,255,0.12)' }, { count: 1, label: 'Tasted', color: '#ffa657', bg: 'rgba(255,166,87,0.12)' }];
+        const allInputs = [];
+        function buildItems(senseIdx, count) {
+            const list = document.getElementById('list-' + senseIdx), inputs = [];
+            for (let i = 0; i < count; i++) {
+                const row = document.createElement('div'); row.className = 'item-row';
+                const num = document.createElement('div'); num.className = 'item-number'; num.textContent = i + 1;
+                const inp = document.createElement('input'); inp.type = 'text'; inp.className = 'item-input'; inp.placeholder = 'Type here...'; inp.setAttribute('autocomplete', 'off');
+                const check = document.createElement('div'); check.className = 'check-mark'; check.innerHTML = `<svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                inp.addEventListener('input', () => { const val = inp.value.trim(); if (val.length > 0) { num.classList.add('filled'); check.classList.add('visible'); } else { num.classList.remove('filled'); check.classList.remove('visible'); } checkReady(senseIdx); });
+                row.appendChild(num); row.appendChild(inp); row.appendChild(check); list.appendChild(row); inputs.push(inp);
+            }
+            allInputs.push(inputs);
+        }
+        function checkReady(senseIdx) { const inputs = allInputs[senseIdx], btn = document.getElementById('btn-' + senseIdx), allFilled = inputs.every(inp => inp.value.trim().length > 0); if (allFilled) btn.classList.add('ready'); else btn.classList.remove('ready'); }
+        function buildProgress() { const track = document.getElementById('progressTrack'); for (let i = 0; i < 5; i++) { const dot = document.createElement('div'); dot.className = 'track-dot' + (i === 0 ? ' active' : ''); dot.id = 'dot-' + i; track.appendChild(dot); } }
+        function nextSense(current) {
+            const next = current + 1; document.getElementById('card-' + current).style.display = 'none'; document.getElementById('dot-' + current).className = 'track-dot done';
+            if (next < 5) { const card = document.getElementById('card-' + next); card.classList.add('active'); card.style.display = ''; document.getElementById('dot-' + next).className = 'track-dot active'; burst(senses[next].color); setTimeout(() => allInputs[next][0] && allInputs[next][0].focus(), 300); }
+        }
+        function complete() {
+            document.getElementById('card-4').style.display = 'none'; document.getElementById('dot-4').className = 'track-dot done';
+            burst('#ffa657'); setTimeout(() => burst('#d2a8ff'), 200); setTimeout(() => burst('#79c0ff'), 400);
+            const comp = document.getElementById('completion'); comp.classList.add('show');
+            const summary = document.getElementById('senseSummary'); summary.innerHTML = '';
+            senses.forEach((s, i) => { const items = allInputs[i].map(inp => inp.value.trim()).filter(Boolean); const row = document.createElement('div'); row.className = 'summary-row'; row.innerHTML = `<span class="summary-badge" style="background:${s.bg};color:${s.color}">${s.label}</span><span class="summary-items">${items.join(' · ')}</span>`; summary.appendChild(row); });
+        }
+        function burst(color) {
+            const overlay = document.getElementById('rewardOverlay'), cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+            for (let i = 0; i < 18; i++) { const p = document.createElement('div'); p.className = 'particle'; const angle = (i / 18) * Math.PI * 2, dist = 80 + Math.random() * 120; p.style.cssText = `left:${cx}px;top:${cy}px;background:${color};--dx:${Math.cos(angle) * dist}px;--dy:${Math.sin(angle) * dist}px;animation-delay:${Math.random() * 0.15}s;`; overlay.appendChild(p); setTimeout(() => p.remove(), 1500); }
+        }
+        function restart() { location.reload(); }
+        buildProgress(); senses.forEach((s, i) => buildItems(i, s.count));
+    </script>
+</body>
+
+</html>

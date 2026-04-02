@@ -122,6 +122,7 @@
       margin-top: 60px;
       padding: 32px 40px;
       background: rgba(255,255,255,0.42);
+      -webkit-backdrop-filter: blur(18px);
       backdrop-filter: blur(18px);
       border: 1.5px solid rgba(255,255,255,0.78);
       border-radius: 24px;
@@ -143,6 +144,53 @@
       color: var(--text-light);
       line-height: 1.6;
       margin-bottom: 18px;
+    }
+
+    .support-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: var(--radius-pill);
+      color: var(--text-dark);
+      font-family: var(--font);
+      font-size: 0.94rem;
+      font-weight: 600;
+      padding: 11px 24px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(180,120,160,0.16);
+    }
+
+    .recent-reflection {
+      margin-top: 22px;
+      width: 100%;
+      max-width: 540px;
+      background: rgba(255,255,255,0.52);
+      border: 1px solid rgba(255,255,255,0.82);
+      border-radius: 18px;
+      padding: 14px 18px;
+      color: var(--text-mid);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+
+    .recent-reflection strong {
+      display: block;
+      color: var(--text-dark);
+      margin-bottom: 4px;
     }
 
     /* ---- Responsive ---- */
@@ -173,7 +221,7 @@
 
     <main class="support-page">
       <div class="support-header">
-        <h1>We're Here to <span>Support You</span> 💜</h1>
+        <h1 id="support-heading">General Wellness: We're Here to <span>Support You</span> 💜</h1>
         <p>Choose a category below to find the help you need</p>
       </div>
 
@@ -205,7 +253,7 @@
         </div>
 
         <!-- Folder 2: Self-Care Guides -->
-        <div id="folder-selfcare" class="folder-item" onclick="openFolder('selfcare')">
+        <div id="folder-breathing" class="folder-item" onclick="openFolder('selfcare')">
           <div class="folder-icon">
             <svg viewBox="0 0 140 118" fill="none" xmlns="http://www.w3.org/2000/svg">
               <!-- Tab -->
@@ -257,7 +305,7 @@
         </div>
 
         <!-- Folder 4: Community -->
-        <div id="folder-community" class="folder-item" onclick="openFolder('community')">
+        <div id="folder-journaling" class="folder-item" onclick="openFolder('community')">
           <div class="folder-icon">
             <svg viewBox="0 0 140 118" fill="none" xmlns="http://www.w3.org/2000/svg">
               <!-- Tab -->
@@ -283,11 +331,19 @@
         </div>
       </div>
 
+      <div id="last-reflection" class="recent-reflection">
+        <strong>Recent Reflection</strong>
+        <span>No recent reflection yet. Start a chat to build your care journey.</span>
+      </div>
+
       <!-- CTA -->
       <div class="support-cta">
         <h3>Need to talk right now? 💜</h3>
         <p>Our AI companion is available 24/7 to listen and support you through any moment.</p>
-        <a href="chat.html"><button class="btn-primary">Talk to Mental AI</button></a>
+        <div class="support-actions">
+          <button class="btn-secondary" onclick="goBackToDashboard()">Back to Dashboard</button>
+          <button class="btn-primary" onclick="goToChatPage()">Talk to Mental AI</button>
+        </div>
       </div>
     </main>
   </div>
@@ -303,70 +359,95 @@
       alert(labels[id] || 'Coming soon!');
     }
 
+    function goBackToDashboard() {
+      window.location.href = 'index.html';
+    }
+
+    function goToChatPage() {
+      window.location.href = 'chat.html';
+    }
+
     async function loadSupportContent() {
       const userId = localStorage.getItem('user_id');
+      const heading = document.getElementById('support-heading');
+      const reflectionBox = document.getElementById('last-reflection');
+      const breathingFolder = document.getElementById('folder-breathing');
+      const journalingFolder = document.getElementById('folder-journaling');
+
+      const resetToGeneralWellness = () => {
+        document.body.classList.remove('theme-positive', 'theme-support', 'theme-anxious', 'state-positive', 'state-needs-support');
+        heading.innerHTML = "General Wellness: We're Here to <span>Support You</span> 💜";
+        if (breathingFolder) {
+          const breathingIcon = breathingFolder.querySelector('.folder-icon');
+          if (breathingIcon) breathingIcon.classList.remove('pulse-attention');
+        }
+        if (journalingFolder) {
+          const journalingIcon = journalingFolder.querySelector('.folder-icon');
+          if (journalingIcon) journalingIcon.classList.remove('pulse-attention');
+        }
+      };
       
       // If no user is logged in, skip dynamic loading
       if (!userId) {
         console.log("No user logged in, skipping dynamic support content");
+        resetToGeneralWellness();
         return;
       }
 
       try {
         // Fetch latest session from backend
         const response = await fetch(`http://127.0.0.1:8000/history/${userId}`);
-        const data = await response.json();
-        
-        if (!data.history || data.history.length === 0) {
+        const history = await response.json();
+
+        if (!response.ok || !Array.isArray(history) || history.length === 0) {
           console.log("No history found for user");
+          resetToGeneralWellness();
           return;
         }
 
-        // Get latest session (most recent is at the end)
-        const latest = data.history[data.history.length - 1];
+        // Backend returns latest first (descending timestamp)
+        const latest = history[0];
         const markers = latest.clinical_markers || {};
+        const state = (markers.state || "").toLowerCase();
+        const latestMessage = (latest.message || "").toLowerCase();
+        const aiReply = latest.ai_reply || "No recent reflection yet. Start a chat to build your care journey.";
         
         console.log("📊 Latest markers:", markers);
+        reflectionBox.innerHTML = `<strong>Recent Reflection</strong><span>${aiReply}</span>`;
+        resetToGeneralWellness();
 
-        // 1. Logic: If Thinking is high (>7), highlight Self-Care/Breathing folder
-        if (markers.thinking_intensity && markers.thinking_intensity > 7) {
-          console.log("🧠 High thinking intensity detected! Highlighting self-care guides...");
-          const selfCareFolder = document.getElementById('folder-selfcare');
-          if (selfCareFolder) {
-            selfCareFolder.classList.add('highlight-pulse');
-            // Add suggestion text
-            const suggestion = document.createElement('div');
-            suggestion.style.marginTop = '24px';
-            suggestion.style.textAlign = 'center';
-            suggestion.style.fontSize = '0.85rem';
-            suggestion.style.color = 'var(--text-light)';
-            suggestion.innerHTML = "💡 Based on your last chat, we recommend 'Mind' exercises to calm racing thoughts.";
-            document.querySelector('.folder-grid').parentElement.insertBefore(suggestion, document.querySelector('.support-cta'));
-          }
+        // Theme + headline mapping by latest NLP state
+        if (state === "positive") {
+          document.body.classList.add('theme-positive');
+          heading.textContent = "We love to see that energy! Keep it up.";
+        } else if (state === "needs support") {
+          document.body.classList.add('theme-support');
+          heading.textContent = "It's okay to feel scared or worried. Let's ground ourselves.";
+        } else if (state === "neutral") {
+          heading.textContent = "How can we make your day better?";
         }
 
-        // 2. Logic: If Doing is low (<3), highlight Energy/Motivation folder
-        if (markers.doing_intensity && markers.doing_intensity < 3) {
-          console.log("⚡ Low doing intensity detected! Highlighting motivation guides...");
-          const energyFolder = document.getElementById('folder-community');
-          if (energyFolder) {
-            energyFolder.classList.add('highlight-pulse');
-            const suggestion = document.createElement('div');
-            suggestion.style.marginTop = '24px';
-            suggestion.style.textAlign = 'center';
-            suggestion.style.fontSize = '0.85rem';
-            suggestion.style.color = 'var(--text-light)';
-            suggestion.innerHTML = "⚡ Your energy is low — let's find small wins together in our community!";
-            document.querySelector('.folder-grid').parentElement.insertBefore(suggestion, document.querySelector('.support-cta'));
-          }
+        if (latestMessage.includes("scared") || latestMessage.includes("worried")) {
+          document.body.classList.add('theme-anxious');
+        }
+
+        if (markers.thinking_intensity && Number(markers.thinking_intensity) > 4 && breathingFolder) {
+          const breathingIcon = breathingFolder.querySelector('.folder-icon');
+          if (breathingIcon) breathingIcon.classList.add('pulse-attention');
+        }
+
+        if (markers.doing_intensity !== undefined && Number(markers.doing_intensity) < 2 && journalingFolder) {
+          const journalingIcon = journalingFolder.querySelector('.folder-icon');
+          if (journalingIcon) journalingIcon.classList.add('pulse-attention');
         }
       } catch (error) {
         console.error("Error loading support content:", error);
+        resetToGeneralWellness();
       }
     }
 
     // Load on page init
-    window.addEventListener('DOMContentLoaded', loadSupportContent);
+    document.addEventListener('DOMContentLoaded', loadSupportContent);
   </script>
 </body>
 </html>
