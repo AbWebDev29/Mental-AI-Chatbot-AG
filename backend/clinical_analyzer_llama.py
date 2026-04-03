@@ -34,14 +34,22 @@ def get_clinical_taxonomy_analysis(
     Forces valid JSON output using format="json"
     """
     
+    print(f"🔍 CLINICAL ANALYZER: user_input = {user_input[:50]}...")
+    print(f"🔍 CLINICAL ANALYZER: chat_history type = {type(chat_history)}")
+    print(f"🔍 CLINICAL ANALYZER: chat_history = {chat_history}")
+    
     # Build context from history
     history_context = ""
     if chat_history and len(chat_history) > 0:
+        print(f"🔍 CLINICAL ANALYZER: Building history context from {len(chat_history)} items")
         history_context = "\nPrevious conversation:\n"
-        for exchange in chat_history[-3:]:  # Last 3 exchanges
+        for i, exchange in enumerate(chat_history[-3:]):  # Last 3 exchanges
+            print(f"  Exchange {i}: type={type(exchange)}, keys={exchange.keys() if isinstance(exchange, dict) else 'NOT A DICT'}")
             # Handle both field name formats
-            user_msg = exchange.get('user_msg') or exchange.get('user', '')
-            ai_msg = exchange.get('ai_reply') or exchange.get('ai', '')
+            user_msg = exchange.get('user_msg') or exchange.get('user', '') if isinstance(exchange, dict) else ''
+            ai_msg = exchange.get('ai_reply') or exchange.get('ai', '') if isinstance(exchange, dict) else ''
+            print(f"    user_msg = {user_msg[:30]}...")
+            print(f"    ai_msg = {ai_msg[:30]}...")
             history_context += f"User: {user_msg}\n"
             history_context += f"AI: {ai_msg}\n"
     

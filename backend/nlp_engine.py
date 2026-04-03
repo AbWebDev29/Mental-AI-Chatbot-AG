@@ -198,16 +198,25 @@ def get_llama_clinical_analysis(text: str, history: Optional[List[Dict[str, str]
         Dict with emotion, clinical_condition, intensity, trigger_source, and functional_impact
     """
     try:
+        print(f"🔍 DEBUG: text = {text[:50]}...")
+        print(f"🔍 DEBUG: history type = {type(history)}, history = {history}")
+        
         # Call the Llama taxonomy analyzer
         analysis = get_clinical_taxonomy_analysis(text, history)
+        
+        print(f"✅ DEBUG: analysis = {analysis}")
         
         # Format for MongoDB storage
         formatted = format_analysis_for_storage(analysis)
         
+        print(f"✅ DEBUG: formatted = {formatted}")
+        
         return formatted
         
     except Exception as e:
-        print(f"Llama taxonomy analysis error: {e}")
+        import traceback
+        print(f"❌ Llama taxonomy analysis error: {e}")
+        print(f"❌ Full traceback:\n{traceback.format_exc()}")
         # Return safe fallback
         return {
             "emotion_tag": "Overwhelmed",
