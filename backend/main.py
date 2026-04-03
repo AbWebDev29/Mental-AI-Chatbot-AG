@@ -17,7 +17,8 @@ load_dotenv(dotenv_path=env_path, override=True)
 
 # Internal module imports
 from database import connect_to_mongo, save_session_data, db
-from nlp_engine import get_clinical_markers, get_secondary_variation, get_opening_phrase
+from nlp_engine import get_clinical_markers, get_secondary_variation, get_opening_phrase, get_llama_clinical_analysis
+from llm_service import generate_llama_response
 
 # 2. Initialization
 app = FastAPI(title="Clinical AI Assistant API")
@@ -64,32 +65,49 @@ async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...
         if len(last_responses) >= 2: break
         last_responses.append(str(doc.get("ai_reply", "")))
     
-    # 2. Sequential Logic: Did the user answer a relief question?
-    relief_keywords = ["show", "game", "movie", "distraction", "relief", "quit"]
-    user_answered_relief = any(kw in message.lower() for kw in relief_keywords)
-    ai_asked_relief = "?" in last_ai_msg and ("relief" in last_ai_msg.lower() or "look like" in last_ai_msg.lower())
-    
-    # 3. Clean History for Reasoning
+    # 2. Clean History for Context Layer
     history_docs = list(reversed(history_docs))
     clean_history = [
         {"user": doc.get("message", ""), "ai": doc.get("ai_reply", ""), "markers": doc.get("markers", {})}
         for doc in history_docs
     ]
     
-    # Reset context if major shift, but preserve crisis memory
-    recent_is_crisis = any("dissociation" in str(doc.get("markers", {}).get("mental_health_pattern", "")).lower() for doc in history_docs)
+    # 3. Create Context Layer from History
+    context_from_history = "\n".join([f"User: {h['user']} AI: {h['ai']}" for h in clean_history])
     
-    reset_context = False
-    IDENTITY_KEYWORDS = {"mirror", "myself", "identity", "tricking", "bad person"}
-    if any(kw in message.lower() for kw in IDENTITY_KEYWORDS) and not recent_is_crisis:
-        # Topic shift detect logic can be expanded here
-        pass
+    # 4. Call Llama 3.2 instead of old markers logic
+    try:
+        ai_reply = generate_llama_response(message, context_from_history)
+    except Exception as e:
+        print(f"Llama Error: {e}")
+        ai_reply = "I'm here, but I'm having a little trouble thinking. Can we try that again?"
 
-    # 4. Primary Reasoning (Adaptive)
-    markers = await get_clinical_markers(message, history=clean_history, reset_context=reset_context)
-    ai_reply = str(markers.get("ai_reply", "I'm listening.")).strip()
+    # 5. Get Clinical Analysis from Llama Taxonomy System
+    clinical_analysis = {}
+    try:
+        clinical_analysis = get_llama_clinical_analysis(message, context_from_history)
+    except Exception as e:
+        print(f"⚠️ Clinical Analysis Error: {e}")
+        # Fallback: use safe defaults
+        clinical_analysis = {
+            "emotion_tag": "Overwhelmed",
+            "emotion_cluster": "COMPLEX",
+            "clinical_label": "Emotional Distress",
+            "clinical_category": "MOOD",
+            "intensity": 5,
+            "trigger_source": "Unknown",
+            "is_recurring": False,
+            "functional_impact": 5,
+            "reasoning": "Analysis unavailable"
+        }
 
-    # 5. ANTI-IDENTICAL & LOOP PREVENTION
+    # 6. Create basic markers for the database (UPDATED to include clinical analysis)
+    markers = {
+        "status": "Conversing",
+        "model": "llama-3.2-3b"
+    }
+
+    # 6. ANTI-IDENTICAL & LOOP PREVENTION (Gentle)
     is_repeat = False
     hard_pivot_msg = ""
     
@@ -102,20 +120,19 @@ async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...
             hard_pivot_msg = "I want to make sure I'm truly listening. Let's set the usual talk aside—how are you actually breathing right now? Is it shallow or deep?"
             is_repeat = True
             break
-        elif ratio > 0.7:
-            print(f"⚠️ SEMANTIC MATCH (>70%): Forcing Sleep Pivot")
+        elif ratio > 0.95:  # Only pivot if almost identical
+            print(f"⚠️ SEMANTIC MATCH (>95%): Forcing Sleep Pivot")
             hard_pivot_msg = "I want to make sure I'm not just repeating myself while you're going through this. Let's look at one specific thing: How is your sleep holding up through all this stress?"
             is_repeat = True
             break
             
     if is_repeat:
         ai_reply = hard_pivot_msg
-        markers["ai_reply"] = ai_reply
         markers["source"] = "absolute_repetition_guard"
 
-    # 6. Save and Return
-    await save_session_data(user_id, message, ai_reply, markers)
-    return {"reply": ai_reply, "analysis": markers, "markers": markers}
+    # 7. Save and Return
+    await save_session_data(user_id, message, ai_reply, clinical_analysis)
+    return {"reply": ai_reply, "analysis": clinical_analysis, "markers": markers}
 
 # --- AUTH ROUTES ---
 class UserAuth(BaseModel):
@@ -166,3 +183,18 @@ async def get_patient_history(user_id: str):
         print(f"❌ HISTORY ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail="Database retrieval failed")
     
+from llm_service import generate_llama_response
+
+@app.post("/chat")
+async def chat_endpoint(user_id: str, message: str):
+    # 1. (Optional) Get context from your MongoDB
+    # For now, let's assume a static context layer
+    context = "The user prefers breathing exercises over logical advice."
+    
+    # 2. Get the response from your local Llama 3.2
+    ai_reply = generate_llama_response(message, context)
+    
+    # 3. Save to MongoDB (after you fix the SSL issue!)
+    # await save_session_data(user_id, message, ai_reply, {})
+    
+    return {"reply": ai_reply}

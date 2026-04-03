@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 from google import genai
 from google.genai import types
 from collections import Counter
+from clinical_analyzer_llama import get_clinical_taxonomy_analysis, format_analysis_for_storage
 
 # Load the model
 try:
@@ -184,3 +185,38 @@ async def get_clinical_markers(text: str, history: Optional[List[Dict[str, Any]]
 
     _MESSAGE_CACHE[cache_key] = dict(fallback_markers)
     return fallback_markers
+
+
+def get_llama_clinical_analysis(text: str, history: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
+    """
+    NEW: Clinical taxonomy analysis using Llama 3.2 3B with JSON mode.
+    
+    Classifies emotions (100+) and mental health conditions (50+) from predefined taxonomies.
+    Uses Ollama's JSON format mode to ensure valid, structured output.
+    
+    Returns:
+        Dict with emotion, clinical_condition, intensity, trigger_source, and functional_impact
+    """
+    try:
+        # Call the Llama taxonomy analyzer
+        analysis = get_clinical_taxonomy_analysis(text, history)
+        
+        # Format for MongoDB storage
+        formatted = format_analysis_for_storage(analysis)
+        
+        return formatted
+        
+    except Exception as e:
+        print(f"Llama taxonomy analysis error: {e}")
+        # Return safe fallback
+        return {
+            "emotion_tag": "Overwhelmed",
+            "emotion_cluster": "COMPLEX",
+            "clinical_label": "GAD (Generalized Anxiety Disorder)",
+            "clinical_category": "ANXIETY",
+            "intensity": 5,
+            "trigger_source": "Unknown",
+            "is_recurring": False,
+            "functional_impact": 5,
+            "reasoning": "System error - using default classification"
+        }
