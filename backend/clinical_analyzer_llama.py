@@ -39,8 +39,11 @@ def get_clinical_taxonomy_analysis(
     if chat_history and len(chat_history) > 0:
         history_context = "\nPrevious conversation:\n"
         for exchange in chat_history[-3:]:  # Last 3 exchanges
-            history_context += f"User: {exchange.get('user_msg', '')}\n"
-            history_context += f"AI: {exchange.get('ai_reply', '')}\n"
+            # Handle both field name formats
+            user_msg = exchange.get('user_msg') or exchange.get('user', '')
+            ai_msg = exchange.get('ai_reply') or exchange.get('ai', '')
+            history_context += f"User: {user_msg}\n"
+            history_context += f"AI: {ai_msg}\n"
     
     # THE MASTER TAXONOMY PROMPT
     # This defines ALL the rules and valid options

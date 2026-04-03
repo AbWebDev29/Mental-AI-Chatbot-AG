@@ -85,7 +85,8 @@ async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...
     # 5. Get Clinical Analysis from Llama Taxonomy System
     clinical_analysis = {}
     try:
-        clinical_analysis = get_llama_clinical_analysis(message, context_from_history)
+        # Pass clean_history as-is (it has the right format)
+        clinical_analysis = get_llama_clinical_analysis(message, clean_history)
     except Exception as e:
         print(f"⚠️ Clinical Analysis Error: {e}")
         # Fallback: use safe defaults
