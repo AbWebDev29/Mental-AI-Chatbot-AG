@@ -8,6 +8,8 @@ from typing import Optional, List, Dict, Any, Union
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import certifi
+from motor.motor_asyncio import AsyncIOMotorClient # or MongoClient if you use the sync version
 
 # 1. Environment Configuration
 env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -163,3 +165,4 @@ async def get_patient_history(user_id: str):
     except Exception as e:
         print(f"❌ HISTORY ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail="Database retrieval failed")
+    

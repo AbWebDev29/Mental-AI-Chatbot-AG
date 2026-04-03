@@ -1,20 +1,26 @@
 import os
 import datetime
+import certifi  # <--- Step 1: Import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# We define the client at the top level so other files can import it
+# Step 2: Get the path to the certificate bundle
+ca = certifi.where()
+
+# Step 3: Initialize the client with the tlsCAFile parameter
 mongo_uri = os.getenv("MONGO_URI") or os.getenv("MONGODB_URL")
-client = AsyncIOMotorClient(mongo_uri)
+
+# We pass the 'ca' path here so Python trusts the MongoDB certificate
+client = AsyncIOMotorClient(mongo_uri, tlsCAFile=ca)
 db = client.get_database("mental_health_db")
 
 async def connect_to_mongo():
-    # Just a ping to verify connection
     try:
+        # A ping verifies the "handshake" is successful
         await client.admin.command('ping')
-        print("✅ Successfully connected to MongoDB Atlas")
+        print("✅ Successfully connected to MongoDB Atlas with SSL Fix")
     except Exception as e:
         print(f"❌ Could not connect to MongoDB: {e}")
 
