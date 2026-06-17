@@ -4,207 +4,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mental AI — Support</title>
-  <meta name="description" content="Mental health support resources, crisis help, guides, and community at Mental AI.">
   <link rel="stylesheet" href="styles/global.css">
   <style>
-    .support-page {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 56px 30px 70px;
-    }
-
-    .support-header {
-      text-align: center;
-      margin-bottom: 52px;
-    }
-
-    .support-header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 10px;
-    }
-
-    .support-header h1 span {
-      background: linear-gradient(135deg, #d97fa0, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .support-header p {
-      font-size: 0.93rem;
-      color: var(--text-light);
-    }
-
-    /* ---- Folder Grid ---- */
-    .folder-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 36px;
-      width: 100%;
-      max-width: 540px;
-    }
-
-    /* ---- Folder Item ---- */
-    .folder-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-
-      /* Entrance animation */
-      opacity: 0;
-      transform: translateY(50px);
-      animation: folderRise 0.6s cubic-bezier(0.34,1.2,0.64,1) both;
-      animation-delay: var(--delay, 0s);
-    }
-
-    @keyframes folderRise {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .folder-item:nth-child(1) { --delay: 0.1s; }
-    .folder-item:nth-child(2) { --delay: 0.22s; }
-    .folder-item:nth-child(3) { --delay: 0.34s; }
-    .folder-item:nth-child(4) { --delay: 0.46s; }
-
-    /* Folder SVG wrapper */
-    .folder-icon {
-      width: 140px;
-      height: 118px;
-      position: relative;
-      transition: transform 0.28s cubic-bezier(0.34,1.3,0.64,1),
-                  filter 0.28s ease;
-      filter: drop-shadow(0 8px 22px rgba(180,120,160,0.22));
-    }
-
-    .folder-item:hover .folder-icon {
-      transform: translateY(-8px) scale(1.06);
-      filter: drop-shadow(0 18px 36px rgba(180,120,160,0.38));
-    }
-
-    /* Apple-style folder SVG */
-    .folder-icon svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .folder-label {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text-mid);
-      text-align: center;
-      line-height: 1.4;
-      transition: color 0.2s;
-    }
-
-    .folder-item:hover .folder-label {
-      color: var(--text-dark);
-    }
-
-    /* ---- Highlight Pulse Animation ---- */
-    .highlight-pulse {
-      animation: highlightPulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes highlightPulse {
-      0%, 100% {
-        filter: drop-shadow(0 8px 22px rgba(180,120,160,0.22));
-      }
-      50% {
-        filter: drop-shadow(0 8px 28px rgba(249,168,212,0.6)) brightness(1.1);
-      }
-    }
-    .support-cta {
-      margin-top: 60px;
-      padding: 32px 40px;
-      background: rgba(255,255,255,0.42);
-      -webkit-backdrop-filter: blur(18px);
-      backdrop-filter: blur(18px);
-      border: 1.5px solid rgba(255,255,255,0.78);
-      border-radius: 24px;
-      box-shadow: 0 8px 32px rgba(180,120,160,0.13);
-      text-align: center;
-      max-width: 440px;
-      width: 100%;
-    }
-
-    .support-cta h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 8px;
-    }
-
-    .support-cta p {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      line-height: 1.6;
-      margin-bottom: 18px;
-    }
-
-    .support-actions {
-      margin-top: 20px;
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.6);
-      border: 1px solid rgba(255,255,255,0.9);
-      border-radius: var(--radius-pill);
-      color: var(--text-dark);
-      font-family: var(--font);
-      font-size: 0.94rem;
-      font-weight: 600;
-      padding: 11px 24px;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .btn-secondary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(180,120,160,0.16);
-    }
-
-    .recent-reflection {
-      margin-top: 22px;
-      width: 100%;
-      max-width: 540px;
-      background: rgba(255,255,255,0.52);
-      border: 1px solid rgba(255,255,255,0.82);
-      border-radius: 18px;
-      padding: 14px 18px;
-      color: var(--text-mid);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      -webkit-backdrop-filter: blur(14px);
-      backdrop-filter: blur(14px);
-    }
-
-    .recent-reflection strong {
-      display: block;
-      color: var(--text-dark);
-      margin-bottom: 4px;
-    }
-
-    /* ---- Responsive ---- */
-    @media (max-width: 500px) {
-      .folder-grid { gap: 24px; max-width: 340px; }
-      .folder-icon { width: 110px; height: 92px; }
-    }
+    .support-page{flex:1;display:flex;flex-direction:column;align-items:center;padding:56px 30px 70px}
+    .support-header{text-align:center;margin-bottom:52px}
+    .support-header h1{font-size:2rem;font-weight:700;color:var(--text-dark);margin-bottom:10px}
+    .support-header h1 span{background:linear-gradient(135deg,#d97fa0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .support-header p{font-size:0.93rem;color:var(--text-light)}
+    .folder-grid{display:grid;grid-template-columns:1fr 1fr;gap:36px;width:100%;max-width:540px}
+    .folder-item{display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer;opacity:0;transform:translateY(50px);animation:folderRise 0.6s cubic-bezier(0.34,1.2,0.64,1) both;animation-delay:var(--delay,0s)}
+    @keyframes folderRise{to{opacity:1;transform:translateY(0)}}
+    .folder-item:nth-child(1){--delay:0.1s}.folder-item:nth-child(2){--delay:0.22s}.folder-item:nth-child(3){--delay:0.34s}.folder-item:nth-child(4){--delay:0.46s}
+    .folder-icon{width:140px;height:118px;position:relative;transition:transform 0.28s cubic-bezier(0.34,1.3,0.64,1),filter 0.28s ease;filter:drop-shadow(0 8px 22px rgba(180,120,160,0.22))}
+    .folder-item:hover .folder-icon{transform:translateY(-8px) scale(1.06);filter:drop-shadow(0 18px 36px rgba(180,120,160,0.38))}
+    .folder-icon svg{width:100%;height:100%}
+    .folder-label{font-size:0.88rem;font-weight:600;color:var(--text-mid);text-align:center;line-height:1.4;transition:color 0.2s}
+    .folder-item:hover .folder-label{color:var(--text-dark)}
+    .support-cta{margin-top:60px;padding:32px 40px;background:rgba(255,255,255,0.42);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1.5px solid rgba(255,255,255,0.78);border-radius:24px;box-shadow:0 8px 32px rgba(180,120,160,0.13);text-align:center;max-width:440px;width:100%}
+    .support-cta h3{font-size:1.1rem;font-weight:700;color:var(--text-dark);margin-bottom:8px}
+    .support-cta p{font-size:0.85rem;color:var(--text-light);line-height:1.6;margin-bottom:18px}
+    .support-actions{margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .btn-secondary{background:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.9);border-radius:var(--radius-pill);color:var(--text-dark);font-family:var(--font);font-size:0.94rem;font-weight:600;padding:11px 24px;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease}
+    .btn-secondary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(180,120,160,0.16)}
+    .quote-box{margin-top:22px;width:100%;max-width:540px;background:linear-gradient(135deg,rgba(249,168,212,0.2),rgba(192,132,252,0.15));border:1.5px solid rgba(255,255,255,0.82);border-radius:18px;padding:20px 24px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+    .quote-box .quote-label{font-size:0.72rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+    .quote-box .quote-text{font-size:0.95rem;color:var(--text-dark);line-height:1.6;font-style:italic}
+    .quote-box .quote-author{font-size:0.78rem;color:var(--text-light);margin-top:8px}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(74,58,92,0.35);backdrop-filter:blur(8px);z-index:9998;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal-box{background:rgba(255,255,255,0.96);border-radius:28px;padding:0;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 64px rgba(180,120,160,0.28);animation:modalIn 0.3s cubic-bezier(0.34,1.2,0.64,1)}
+    @keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .modal-header{padding:28px 28px 20px;border-bottom:1px solid rgba(180,120,160,0.12);position:relative}
+    .modal-header h2{font-size:1.2rem;font-weight:700;color:var(--text-dark)}
+    .modal-header p{font-size:0.82rem;color:var(--text-light);margin-top:4px}
+    .modal-close{position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;background:rgba(180,120,160,0.1);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background 0.2s}
+    .modal-close:hover{background:rgba(180,120,160,0.2)}
+    .modal-body{padding:24px 28px}
+    .resource-card{background:rgba(249,168,212,0.08);border:1.5px solid rgba(249,168,212,0.25);border-radius:16px;padding:16px 18px;margin-bottom:12px;transition:all 0.2s}
+    .resource-card:hover{background:rgba(249,168,212,0.15);transform:translateY(-1px)}
+    .resource-card h4{font-size:0.92rem;font-weight:600;color:var(--text-dark);margin-bottom:4px}
+    .resource-card p{font-size:0.8rem;color:var(--text-light);line-height:1.5}
+    .resource-card .resource-action{display:inline-block;margin-top:8px;font-size:0.78rem;font-weight:600;color:#9b59d4;text-decoration:none;cursor:pointer}
+    .resource-card .resource-action:hover{text-decoration:underline}
+    .resource-card.highlight{border-color:rgba(134,239,172,0.5);background:rgba(134,239,172,0.08)}
+    .resource-card.highlight:hover{background:rgba(134,239,172,0.15)}
+    .resource-card.chat-card{border-color:rgba(249,168,212,0.5);background:rgba(249,168,212,0.1)}
+    .tip-card{background:rgba(212,184,240,0.1);border:1.5px solid rgba(212,184,240,0.3);border-radius:16px;padding:14px 18px;margin-bottom:10px}
+    .tip-card .tip-emoji{font-size:20px;margin-bottom:6px;display:block}
+    .tip-card h4{font-size:0.88rem;font-weight:600;color:var(--text-dark);margin-bottom:3px}
+    .tip-card p{font-size:0.78rem;color:var(--text-light);line-height:1.5}
+    .tip-card .resource-action{display:inline-block;margin-top:6px;font-size:0.78rem;font-weight:600;color:#9b59d4;cursor:pointer}
+    @media(max-width:500px){.folder-grid{gap:24px;max-width:340px}.folder-icon{width:110px;height:92px}}
   </style>
 </head>
 <body>
   <div class="gradient-bg"></div>
-
   <div class="page-wrapper">
-    <!-- Navbar -->
     <nav class="navbar">
       <a href="index.html" class="navbar-logo">
         <div class="logo-circle">🌸</div>
@@ -221,233 +76,267 @@
 
     <main class="support-page">
       <div class="support-header">
-        <h1 id="support-heading">General Wellness: We're Here to <span>Support You</span> 💜</h1>
+        <h1>General Wellness: We're Here to <span>Support You</span> 💜</h1>
         <p>Choose a category below to find the help you need</p>
       </div>
 
       <div class="folder-grid">
-        <!-- Folder 1: Crisis Help -->
         <div class="folder-item" onclick="openFolder('crisis')">
           <div class="folder-icon">
             <svg viewBox="0 0 140 118" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Tab -->
               <rect x="8" y="8" width="46" height="16" rx="8" fill="rgba(249,168,212,0.85)"/>
-              <!-- Body -->
               <rect x="0" y="18" width="140" height="92" rx="16" fill="rgba(249,168,212,0.75)"/>
               <rect x="0" y="18" width="140" height="92" rx="16" fill="url(#f1shine)"/>
-              <!-- Lines -->
               <rect x="24" y="50" width="92" height="6" rx="3" fill="rgba(255,255,255,0.55)"/>
               <rect x="24" y="65" width="72" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>
               <rect x="24" y="80" width="56" height="6" rx="3" fill="rgba(255,255,255,0.3)"/>
-              <!-- Icon -->
               <text x="105" y="48" font-size="20">🆘</text>
-              <defs>
-                <linearGradient id="f1shine" x1="0" y1="18" x2="140" y2="110" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="rgba(255,255,255,0.3)"/>
-                  <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="f1shine" x1="0" y1="18" x2="140" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>
             </svg>
           </div>
           <span class="folder-label">Crisis Help &amp;<br>Emergency Lines</span>
         </div>
 
-        <!-- Folder 2: Self-Care Guides -->
-        <div id="folder-breathing" class="folder-item" onclick="openFolder('selfcare')">
+        <div class="folder-item" onclick="openFolder('selfcare')">
           <div class="folder-icon">
             <svg viewBox="0 0 140 118" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Tab -->
               <rect x="8" y="8" width="46" height="16" rx="8" fill="rgba(212,184,240,0.9)"/>
-              <!-- Body -->
               <rect x="0" y="18" width="140" height="92" rx="16" fill="rgba(212,184,240,0.72)"/>
               <rect x="0" y="18" width="140" height="92" rx="16" fill="url(#f2shine)"/>
-              <!-- Lines -->
               <rect x="24" y="50" width="92" height="6" rx="3" fill="rgba(255,255,255,0.55)"/>
               <rect x="24" y="65" width="72" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>
               <rect x="24" y="80" width="56" height="6" rx="3" fill="rgba(255,255,255,0.3)"/>
-              <!-- Icon -->
               <text x="102" y="49" font-size="22">🌿</text>
-              <defs>
-                <linearGradient id="f2shine" x1="0" y1="18" x2="140" y2="110" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="rgba(255,255,255,0.3)"/>
-                  <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="f2shine" x1="0" y1="18" x2="140" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>
             </svg>
           </div>
           <span class="folder-label">Self-Care<br>Guides &amp; Tips</span>
         </div>
 
-        <!-- Folder 3: Find a Therapist -->
         <div class="folder-item" onclick="openFolder('therapist')">
           <div class="folder-icon">
             <svg viewBox="0 0 140 118" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Tab -->
               <rect x="8" y="8" width="46" height="16" rx="8" fill="rgba(184,216,248,0.9)"/>
-              <!-- Body -->
               <rect x="0" y="18" width="140" height="92" rx="16" fill="rgba(184,216,248,0.7)"/>
               <rect x="0" y="18" width="140" height="92" rx="16" fill="url(#f3shine)"/>
-              <!-- Lines -->
               <rect x="24" y="50" width="92" height="6" rx="3" fill="rgba(255,255,255,0.55)"/>
               <rect x="24" y="65" width="72" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>
               <rect x="24" y="80" width="56" height="6" rx="3" fill="rgba(255,255,255,0.3)"/>
-              <!-- Icon -->
               <text x="105" y="49" font-size="20">🩺</text>
-              <defs>
-                <linearGradient id="f3shine" x1="0" y1="18" x2="140" y2="110" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="rgba(255,255,255,0.3)"/>
-                  <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="f3shine" x1="0" y1="18" x2="140" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>
             </svg>
           </div>
           <span class="folder-label">Find a<br>Therapist Near You</span>
         </div>
 
-        <!-- Folder 4: Community -->
-        <div id="folder-journaling" class="folder-item" onclick="openFolder('community')">
+        <div class="folder-item" onclick="openFolder('community')">
           <div class="folder-icon">
             <svg viewBox="0 0 140 118" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Tab -->
               <rect x="8" y="8" width="46" height="16" rx="8" fill="rgba(255,217,183,0.9)"/>
-              <!-- Body -->
               <rect x="0" y="18" width="140" height="92" rx="16" fill="rgba(255,217,183,0.72)"/>
               <rect x="0" y="18" width="140" height="92" rx="16" fill="url(#f4shine)"/>
-              <!-- Lines -->
               <rect x="24" y="50" width="92" height="6" rx="3" fill="rgba(255,255,255,0.55)"/>
               <rect x="24" y="65" width="72" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>
               <rect x="24" y="80" width="56" height="6" rx="3" fill="rgba(255,255,255,0.3)"/>
-              <!-- Icon -->
               <text x="105" y="49" font-size="20">🤝</text>
-              <defs>
-                <linearGradient id="f4shine" x1="0" y1="18" x2="140" y2="110" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="rgba(255,255,255,0.3)"/>
-                  <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="f4shine" x1="0" y1="18" x2="140" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>
             </svg>
           </div>
           <span class="folder-label">Community<br>&amp; Peer Support</span>
         </div>
       </div>
 
-      <div id="last-reflection" class="recent-reflection">
-        <strong>Recent Reflection</strong>
-        <span>No recent reflection yet. Start a chat to build your care journey.</span>
+      <div class="quote-box" id="quoteBox">
+        <div class="quote-label">✦ Daily Reminder</div>
+        <div class="quote-text" id="quoteText">Loading your daily inspiration...</div>
+        <div class="quote-author" id="quoteAuthor"></div>
       </div>
 
-      <!-- CTA -->
       <div class="support-cta">
         <h3>Need to talk right now? 💜</h3>
         <p>Our AI companion is available 24/7 to listen and support you through any moment.</p>
         <div class="support-actions">
-          <button class="btn-secondary" onclick="goBackToDashboard()">Back to Dashboard</button>
-          <button class="btn-primary" onclick="goToChatPage()">Talk to Mental AI</button>
+          <button class="btn-secondary" onclick="window.location.href='index.html'">Back to Home</button>
+          <button class="btn-primary" onclick="window.location.href='chat.html'">Talk to Mental AI</button>
         </div>
       </div>
     </main>
   </div>
 
+  <div class="modal-overlay" id="folderModal" onclick="closeModal(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modalTitle">—</h2>
+        <p id="modalSubtitle">—</p>
+        <button class="modal-close" onclick="document.getElementById('folderModal').classList.remove('open')">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
   <script>
+    const quotes = [
+      { text: "You don't have to be positive all the time. It's perfectly okay to feel sad, angry, annoyed, frustrated, scared, or anxious.", author: "— Lori Deschene" },
+      { text: "There is hope, even when your brain tells you there isn't.", author: "— John Green" },
+      { text: "You are allowed to be both a masterpiece and a work in progress simultaneously.", author: "— Sophia Bush" },
+      { text: "Self-care is not selfish. You cannot pour from an empty cup.", author: "— Eleanor Brown" },
+      { text: "Recovery is not one and done. It is a lifelong journey that takes place one day, one step at a time.", author: "— Unknown" },
+      { text: "Be gentle with yourself. You are a child of the universe, no less than the trees and the stars.", author: "— Max Ehrmann" },
+      { text: "It's okay to not be okay as long as you are not giving up.", author: "— Unknown" },
+      { text: "Your mental health is a priority. Your happiness is essential. Your self-care is a necessity.", author: "— Unknown" },
+      { text: "Healing is not linear. Some days will be harder than others, and that's okay.", author: "— Unknown" },
+      { text: "You are braver than you believe, stronger than you seem, and smarter than you think.", author: "— A.A. Milne" },
+    ];
+
+    const crisisBody = `
+      <div class="resource-card highlight">
+        <h4>🇮🇳 KIRAN — Government of India</h4>
+        <p>Official 24/7 toll-free mental health helpline. Available in 13 languages across all states.</p>
+        <a class="resource-action" href="tel:18005990019">📞 1800-599-0019 (Free)</a>
+      </div>
+      <div class="resource-card">
+        <h4>iCall — India</h4>
+        <p>Free mental health support by TISS. Call or WhatsApp for counselling.</p>
+        <a class="resource-action" href="tel:9152987821">📞 9152987821</a>
+      </div>
+      <div class="resource-card">
+        <h4>Vandrevala Foundation Helpline</h4>
+        <p>24/7 free mental health support in India. Available in multiple languages.</p>
+        <a class="resource-action" href="tel:9999666555">📞 9999-666-555</a>
+      </div>
+      <div class="resource-card">
+        <h4>AASRA — Suicide Prevention</h4>
+        <p>24/7 crisis intervention for people in emotional distress.</p>
+        <a class="resource-action" href="tel:9820466726">📞 9820466726</a>
+      </div>
+      <div class="resource-card">
+        <h4>iMind — Mental Health Helpline</h4>
+        <p>Karnataka-based mental health helpline for crisis support.</p>
+        <a class="resource-action" href="tel:08046110007">📞 080-46110007</a>
+      </div>
+      <div class="resource-card chat-card">
+        <h4>💜 Talk to Mental AI</h4>
+        <p>Our AI companion is here to listen right now, anytime, for free.</p>
+        <span class="resource-action" onclick="window.location.href='chat.html'">Start chatting →</span>
+      </div>`;
+
+    const selfcareBody = `
+      <div class="tip-card">
+        <span class="tip-emoji">🫁</span>
+        <h4>Box Breathing</h4>
+        <p>Inhale for 4 counts, hold for 4, exhale for 4, hold for 4. Repeat 4 times. Instantly calms your nervous system.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">📝</span>
+        <h4>5-Minute Journaling</h4>
+        <p>Write 3 things you're grateful for each morning. Studies show this rewires your brain toward positivity over time.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">🚶</span>
+        <h4>Movement Breaks</h4>
+        <p>Even a 10-minute walk outside can reduce anxiety by up to 30%. Try to get some sunlight each day.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">📵</span>
+        <h4>Digital Detox Hour</h4>
+        <p>Put your phone away 1 hour before bed. Blue light disrupts sleep and social media can spike anxiety.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">💧</span>
+        <h4>Hydration & Nutrition</h4>
+        <p>Dehydration and low blood sugar directly affect mood. Drink water first thing in the morning.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">🎮</span>
+        <h4>Try Our Wellness Games</h4>
+        <p>We have breathing exercises, grounding activities and more in the Games section.</p>
+        <span class="resource-action" onclick="window.location.href='games.html'">Go to Games →</span>
+      </div>`;
+
+    const therapistBody = `
+      <div class="resource-card highlight">
+        <h4>🇮🇳 KIRAN — Government of India</h4>
+        <p>Official 24/7 toll-free mental health helpline. Available in 13 languages across all states.</p>
+        <a class="resource-action" href="tel:18005990019">📞 1800-599-0019 (Free)</a>
+      </div>
+      <div class="resource-card">
+        <h4>iCall — TISS</h4>
+        <p>Psychologists and counsellors from Tata Institute of Social Sciences. Sliding scale fees available.</p>
+        <a class="resource-action" href="https://icallhelpline.org" target="_blank">Visit iCall →</a>
+      </div>
+      <div class="resource-card">
+        <h4>YourDOST</h4>
+        <p>Online counselling platform with 1000+ experts. Chat, call or video sessions available.</p>
+        <a class="resource-action" href="https://yourdost.com" target="_blank">Visit YourDOST →</a>
+      </div>
+      <div class="resource-card">
+        <h4>Practo Mental Health</h4>
+        <p>Find verified psychiatrists and psychologists near you. Book appointments online.</p>
+        <a class="resource-action" href="https://practo.com/mental-health" target="_blank">Find on Practo →</a>
+      </div>
+      <div class="resource-card">
+        <h4>MindPeers</h4>
+        <p>Affordable therapy starting at ₹500/session. Specialises in young adults and students.</p>
+        <a class="resource-action" href="https://mindpeers.co" target="_blank">Visit MindPeers →</a>
+      </div>`;
+
+    const communityBody = `
+      <div class="resource-card">
+        <h4>r/mentalhealth</h4>
+        <p>A supportive Reddit community of 1M+ members sharing experiences and offering peer support.</p>
+        <a class="resource-action" href="https://reddit.com/r/mentalhealth" target="_blank">Join Community →</a>
+      </div>
+      <div class="resource-card">
+        <h4>7 Cups</h4>
+        <p>Free online chat with trained listeners. Available 24/7 for emotional support.</p>
+        <a class="resource-action" href="https://7cups.com" target="_blank">Visit 7 Cups →</a>
+      </div>
+      <div class="resource-card">
+        <h4>Minds — Mental Health Social Network</h4>
+        <p>A social platform focused on mental wellness, positivity and peer support.</p>
+        <a class="resource-action" href="https://minds.com" target="_blank">Visit Minds →</a>
+      </div>
+      <div class="resource-card">
+        <h4>The Mighty</h4>
+        <p>Real stories and community from people living with mental health conditions. Read and share.</p>
+        <a class="resource-action" href="https://themighty.com" target="_blank">Visit The Mighty →</a>
+      </div>
+      <div class="resource-card chat-card">
+        <h4>💬 Chat with Mental AI</h4>
+        <p>Sometimes you just need someone to talk to. Our AI is always here, judgment-free.</p>
+        <span class="resource-action" onclick="window.location.href='chat.html'">Start chatting →</span>
+      </div>`;
+
+    const folderMeta = {
+      crisis:    { title: '🆘 Crisis Help & Emergency Lines', subtitle: 'You are not alone. Help is always available.', body: crisisBody },
+      selfcare:  { title: '🌿 Self-Care Guides & Tips', subtitle: 'Small steps every day make a big difference.', body: selfcareBody },
+      therapist: { title: '🩺 Find a Therapist Near You', subtitle: 'Professional help is a sign of strength, not weakness.', body: therapistBody },
+      community: { title: '🤝 Community & Peer Support', subtitle: 'You are not alone — connect with people who understand.', body: communityBody },
+    };
+
     function openFolder(id) {
-      const labels = {
-        crisis:     'Crisis Help resources are being prepared... 🆘',
-        selfcare:   'Self-Care Guides are coming soon! 🌿',
-        therapist:  'Therapist finder is launching soon! 🩺',
-        community:  'Community forums are coming soon! 🤝',
-      };
-      alert(labels[id] || 'Coming soon!');
+      const m = folderMeta[id];
+      document.getElementById('modalTitle').textContent = m.title;
+      document.getElementById('modalSubtitle').textContent = m.subtitle;
+      document.getElementById('modalBody').innerHTML = m.body;
+      document.getElementById('folderModal').classList.add('open');
     }
 
-    function goBackToDashboard() {
-      window.location.href = 'index.html';
-    }
-
-    function goToChatPage() {
-      window.location.href = 'chat.html';
-    }
-
-    async function loadSupportContent() {
-      const userId = localStorage.getItem('user_id');
-      const heading = document.getElementById('support-heading');
-      const reflectionBox = document.getElementById('last-reflection');
-      const breathingFolder = document.getElementById('folder-breathing');
-      const journalingFolder = document.getElementById('folder-journaling');
-
-      const resetToGeneralWellness = () => {
-        document.body.classList.remove('theme-positive', 'theme-support', 'theme-anxious', 'state-positive', 'state-needs-support');
-        heading.innerHTML = "General Wellness: We're Here to <span>Support You</span> 💜";
-        if (breathingFolder) {
-          const breathingIcon = breathingFolder.querySelector('.folder-icon');
-          if (breathingIcon) breathingIcon.classList.remove('pulse-attention');
-        }
-        if (journalingFolder) {
-          const journalingIcon = journalingFolder.querySelector('.folder-icon');
-          if (journalingIcon) journalingIcon.classList.remove('pulse-attention');
-        }
-      };
-      
-      // If no user is logged in, skip dynamic loading
-      if (!userId) {
-        console.log("No user logged in, skipping dynamic support content");
-        resetToGeneralWellness();
-        return;
-      }
-
-      try {
-        // Fetch latest session from backend
-        const response = await fetch(`http://127.0.0.1:8000/history/${userId}`);
-        const history = await response.json();
-
-        if (!response.ok || !Array.isArray(history) || history.length === 0) {
-          console.log("No history found for user");
-          resetToGeneralWellness();
-          return;
-        }
-
-        // Backend returns latest first (descending timestamp)
-        const latest = history[0];
-        const markers = latest.clinical_markers || {};
-        const state = (markers.state || "").toLowerCase();
-        const latestMessage = (latest.message || "").toLowerCase();
-        const aiReply = latest.ai_reply || "No recent reflection yet. Start a chat to build your care journey.";
-        
-        console.log("📊 Latest markers:", markers);
-        reflectionBox.innerHTML = `<strong>Recent Reflection</strong><span>${aiReply}</span>`;
-        resetToGeneralWellness();
-
-        // Theme + headline mapping by latest NLP state
-        if (state === "positive") {
-          document.body.classList.add('theme-positive');
-          heading.textContent = "We love to see that energy! Keep it up.";
-        } else if (state === "needs support") {
-          document.body.classList.add('theme-support');
-          heading.textContent = "It's okay to feel scared or worried. Let's ground ourselves.";
-        } else if (state === "neutral") {
-          heading.textContent = "How can we make your day better?";
-        }
-
-        if (latestMessage.includes("scared") || latestMessage.includes("worried")) {
-          document.body.classList.add('theme-anxious');
-        }
-
-        if (markers.thinking_intensity && Number(markers.thinking_intensity) > 4 && breathingFolder) {
-          const breathingIcon = breathingFolder.querySelector('.folder-icon');
-          if (breathingIcon) breathingIcon.classList.add('pulse-attention');
-        }
-
-        if (markers.doing_intensity !== undefined && Number(markers.doing_intensity) < 2 && journalingFolder) {
-          const journalingIcon = journalingFolder.querySelector('.folder-icon');
-          if (journalingIcon) journalingIcon.classList.add('pulse-attention');
-        }
-      } catch (error) {
-        console.error("Error loading support content:", error);
-        resetToGeneralWellness();
+    function closeModal(e) {
+      if (e.target === document.getElementById('folderModal')) {
+        document.getElementById('folderModal').classList.remove('open');
       }
     }
 
-    // Load on page init
-    document.addEventListener('DOMContentLoaded', loadSupportContent);
+    function loadQuote() {
+      const today = new Date().getDay();
+      const quote = quotes[today % quotes.length];
+      document.getElementById('quoteText').textContent = '"' + quote.text + '"';
+      document.getElementById('quoteAuthor').textContent = quote.author;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadQuote);
   </script>
 </body>
 </html>

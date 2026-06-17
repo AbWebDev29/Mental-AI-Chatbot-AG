@@ -24,13 +24,14 @@ async def connect_to_mongo():
     except Exception as e:
         print(f"❌ Could not connect to MongoDB: {e}")
 
-async def save_session_data(user_id: str, message: str, ai_reply: str, markers: dict):
+async def save_session_data(user_id: str, message: str, ai_reply: str, markers: dict, session_id: str = "default"):
     collection = db.sessions
     print(f"Attempting to save session for user {user_id}")
     try:
         await collection.insert_one(
             {
                 "user_id": user_id,
+                "session_id": session_id,
                 "timestamp": datetime.datetime.utcnow(),
                 "message": message,
                 "ai_reply": ai_reply,

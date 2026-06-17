@@ -49,12 +49,12 @@ async def create_test_user():
 # --- ROUTES ---
 
 @app.post("/chat")
-async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...)):
+async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...), session_id: str = Query(default="default")):
     """
     Processes user message with 'Adaptive Intent Detection' and 'Loop Prevention'.
     """
     # 1. Fetch Chat History
-    cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(5)
+    cursor = db.sessions.find({"user_id": user_id, "session_id": session_id}).sort("timestamp", -1).limit(10)
     history_docs: List[Dict[str, Any]] = await cursor.to_list(length=5)
     
     # Extract Last AI message for 'Question-Answer Detection'
@@ -132,7 +132,7 @@ async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...
         markers["source"] = "absolute_repetition_guard"
 
     # 7. Save and Return
-    await save_session_data(user_id, message, ai_reply, clinical_analysis)
+    await save_session_data(user_id, message, ai_reply, clinical_analysis, session_id)
     return {"reply": ai_reply, "analysis": clinical_analysis, "markers": markers}
 
 # --- AUTH ROUTES ---
@@ -173,7 +173,7 @@ async def get_patient_history(user_id: str):
     Returns the latest 5 sessions for this user.
     """
     try:
-        cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(5)
+        cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(20)
         history = await cursor.to_list(length=5)
 
         for entry in history:
@@ -186,16 +186,91 @@ async def get_patient_history(user_id: str):
     
 from llm_service import generate_llama_response
 
-@app.post("/chat")
-async def chat_endpoint(user_id: str, message: str):
-    # 1. (Optional) Get context from your MongoDB
-    # For now, let's assume a static context layer
-    context = "The user prefers breathing exercises over logical advice."
-    
-    # 2. Get the response from your local Llama 3.2
-    ai_reply = generate_llama_response(message, context)
-    
-    # 3. Save to MongoDB (after you fix the SSL issue!)
-    # await save_session_data(user_id, message, ai_reply, {})
-    
-    return {"reply": ai_reply}
+@app.delete("/auth/delete/{user_id}")
+async def delete_account(user_id: str):
+    from bson import ObjectId
+    try:
+        # Delete user
+        await db.users.delete_one({"_id": ObjectId(user_id)})
+        # Delete all their chat sessions too
+        await db.sessions.delete_many({"user_id": user_id})
+        return {"status": "deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- SESSION ROUTES ---
+
+@app.get("/sessions/{user_id}")
+async def get_user_sessions(user_id: str):
+    """
+    Returns grouped conversations for the sidebar.
+    Each session has a session_id, first message, and timestamp.
+    """
+    try:
+        pipeline = [
+            {"$match": {"user_id": user_id}},
+            {"$sort": {"timestamp": -1}},
+            {"$group": {
+                "_id": "$session_id",
+                "first_message": {"$last": "$message"},
+                "last_time": {"$first": "$timestamp"},
+                "message_count": {"$sum": 1}
+            }},
+            {"$sort": {"last_time": -1}},
+            {"$limit": 20}
+        ]
+        sessions = await db.sessions.aggregate(pipeline).to_list(length=20)
+        for s in sessions:
+            s["session_id"] = str(s["_id"])
+            del s["_id"]
+            s["last_time"] = str(s["last_time"])
+        return sessions
+    except Exception as e:
+        print(f"❌ SESSIONS ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/session/{session_id}")
+async def get_session_messages(session_id: str):
+    """
+    Returns all messages for a specific session.
+    """
+    try:
+        cursor = db.sessions.find({"session_id": session_id}).sort("timestamp", 1)
+        messages = await cursor.to_list(length=100)
+        for m in messages:
+            m["_id"] = str(m["_id"])
+            m["timestamp"] = str(m["timestamp"])
+        return messages
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/memory/{user_id}")
+async def get_user_memory(user_id: str):
+    """
+    Returns a memory summary of the user's past conversations.
+    Used to give the bot context about who the user is.
+    """
+    try:
+        cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(50)
+        history = await cursor.to_list(length=50)
+
+        emotions = [h.get("clinical_markers", {}).get("emotion_tag") for h in history if h.get("clinical_markers")]
+        emotions = [e for e in emotions if e]
+
+        topics = [h.get("message", "")[:60] for h in history[:5]]
+
+        top_emotion = None
+        if emotions:
+            freq = {}
+            for e in emotions:
+                freq[e] = freq.get(e, 0) + 1
+            top_emotion = max(freq, key=freq.get)
+
+        return {
+            "total_sessions": len(history),
+            "top_emotion": top_emotion,
+            "recent_topics": topics,
+            "last_session": str(history[0]["timestamp"]) if history else None
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

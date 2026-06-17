@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental AI — My Profile</title>
+  <link rel="stylesheet" href="styles/global.css">
+  <style>
+    .profile-center{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px}
+    .profile-col{display:flex;flex-direction:column;gap:20px;width:100%;max-width:520px}
+    .p-card{background:rgba(255,255,255,0.48);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1.5px solid rgba(255,255,255,0.78);border-radius:24px;box-shadow:0 12px 40px rgba(180,120,160,0.16);overflow:hidden}
+    .profile-header{padding:32px 28px 24px;background:linear-gradient(135deg,rgba(249,168,212,0.22),rgba(192,132,252,0.18));border-bottom:1px solid rgba(255,255,255,0.6);display:flex;align-items:center;gap:20px}
+    .big-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#f9a8d4,#c084fc);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:white;box-shadow:0 6px 20px rgba(192,132,252,0.4);flex-shrink:0;cursor:pointer;position:relative;transition:transform 0.2s ease;overflow:hidden}
+    .big-avatar:hover{transform:scale(1.07)}
+    .avatar-edit-hint{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:2}
+    .profile-header-info h2{font-size:1.35rem;font-weight:700;color:var(--text-dark)}
+    .profile-header-info p{font-size:0.82rem;color:var(--text-light);margin-top:4px}
+    .member-since{font-size:0.75rem;color:var(--text-light);margin-top:6px}
+    .member-badge{display:inline-block;margin-top:6px;padding:4px 12px;border-radius:999px;background:rgba(192,132,252,0.15);border:1px solid rgba(192,132,252,0.3);font-size:0.72rem;font-weight:600;color:#9b59d4}
+    .p-section{padding:22px 28px}
+    .p-section-title{font-size:0.72rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px}
+    .field-row{display:flex;flex-direction:column;gap:12px}
+    .field-label{font-size:0.75rem;color:var(--text-light);font-weight:500;margin-bottom:4px}
+    .field-input{width:100%;padding:12px 18px;border-radius:14px;border:1.5px solid rgba(255,255,255,0.7);background:rgba(255,255,255,0.45);font-family:var(--font);font-size:0.9rem;color:var(--text-dark);outline:none;transition:border-color 0.3s ease,box-shadow 0.3s ease}
+    .field-input:focus{border-color:rgba(192,132,252,0.6);box-shadow:0 0 0 3px rgba(192,132,252,0.15)}
+    .field-input:disabled{opacity:0.6;cursor:not-allowed}
+    .field-error{font-size:0.72rem;color:#e07a7a;margin-top:4px;display:none}
+    .save-btn{width:100%;padding:14px;border-radius:999px;background:linear-gradient(135deg,#f9a8d4,#c084fc);border:none;color:white;font-family:var(--font);font-size:0.95rem;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(192,132,252,0.38);transition:all 0.25s ease;margin-top:8px}
+    .save-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(192,132,252,0.5)}
+    .mood-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px}
+    .mood-stat{background:rgba(255,255,255,0.5);border:1.5px solid rgba(255,255,255,0.75);border-radius:16px;padding:14px;text-align:center}
+    .mood-stat-num{font-size:1.4rem;font-weight:700;color:var(--text-dark)}
+    .mood-stat-label{font-size:0.7rem;color:var(--text-light);margin-top:3px}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(180,120,160,0.1)}
+    .toggle-row:last-child{border-bottom:none}
+    .toggle-label{font-size:0.88rem;color:var(--text-mid)}
+    .toggle-sub{font-size:0.75rem;color:var(--text-light);margin-top:2px}
+    .toggle-switch{position:relative;width:42px;height:24px;flex-shrink:0}
+    .toggle-switch input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;inset:0;background:rgba(180,120,160,0.25);border-radius:999px;cursor:pointer;transition:background 0.3s ease}
+    .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:transform 0.3s ease;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
+    .toggle-switch input:checked+.toggle-slider{background:linear-gradient(135deg,#f9a8d4,#c084fc)}
+    .toggle-switch input:checked+.toggle-slider::before{transform:translateX(18px)}
+    .action-btn{width:100%;padding:13px;border-radius:999px;font-family:var(--font);font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.22s ease;margin-bottom:10px}
+    .action-btn:last-child{margin-bottom:0}
+    .btn-signout{background:rgba(255,255,255,0.5);border:1.5px solid rgba(180,120,160,0.25);color:var(--text-mid)}
+    .btn-signout:hover{background:rgba(255,255,255,0.75);transform:translateY(-1px)}
+    .btn-add{background:rgba(192,132,252,0.1);border:1.5px solid rgba(192,132,252,0.3);color:#9b59d4}
+    .btn-add:hover{background:rgba(192,132,252,0.18);transform:translateY(-1px)}
+    .btn-delete{background:rgba(224,122,122,0.08);border:1.5px solid rgba(224,122,122,0.25);color:#e07a7a}
+    .btn-delete:hover{background:rgba(224,122,122,0.15);transform:translateY(-1px)}
+    .emoji-picker{position:absolute;top:80px;left:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);border:1.5px solid rgba(255,255,255,0.85);border-radius:16px;padding:12px;box-shadow:0 12px 40px rgba(180,120,160,0.2);z-index:999;display:none;flex-wrap:wrap;gap:6px;width:230px}
+    .emoji-picker.open{display:flex}
+    .emoji-opt{font-size:22px;cursor:pointer;padding:4px;border-radius:8px;transition:background 0.15s}
+    .emoji-opt:hover{background:rgba(192,132,252,0.15)}
+    .upload-opt{width:100%;padding:8px;text-align:center;font-size:0.8rem;color:#9b59d4;cursor:pointer;border-radius:8px;font-family:'Outfit',sans-serif;transition:background 0.15s;border-top:1px solid rgba(180,120,160,0.15);margin-top:4px}
+    .upload-opt:hover{background:rgba(192,132,252,0.1)}
+    .avatar-wrap{position:relative}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(74,58,92,0.3);backdrop-filter:blur(6px);z-index:9998;align-items:center;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal-box{background:rgba(255,255,255,0.95);border-radius:24px;padding:32px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(180,120,160,0.25)}
+    .modal-box h3{font-size:1.1rem;font-weight:700;color:var(--text-dark);margin-bottom:10px}
+    .modal-box p{font-size:0.85rem;color:var(--text-light);margin-bottom:24px;line-height:1.6}
+    .modal-btns{display:flex;gap:10px}
+    .modal-cancel{flex:1;padding:12px;border-radius:999px;background:rgba(255,255,255,0.5);border:1.5px solid rgba(180,120,160,0.2);color:var(--text-mid);font-family:var(--font);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+    .modal-cancel:hover{background:rgba(255,255,255,0.8)}
+    .modal-confirm{flex:1;padding:12px;border-radius:999px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:white;font-family:var(--font);font-size:0.88rem;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(239,68,68,0.3);transition:all 0.2s}
+    .modal-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(239,68,68,0.4)}
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border:1.5px solid rgba(192,132,252,0.3);border-radius:999px;padding:12px 24px;font-size:0.88rem;color:var(--text-dark);font-weight:500;box-shadow:0 8px 30px rgba(180,120,160,0.2);transition:transform 0.4s cubic-bezier(0.34,1.2,0.64,1);z-index:9999}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
+<body>
+  <div class="gradient-bg"></div>
+  <div class="page-wrapper">
+    <nav class="navbar">
+      <a href="index.html" class="navbar-logo">
+        <div class="logo-circle">🌸</div>
+        <div class="logo-text"><span>Mental</span> AI</div>
+      </a>
+      <ul class="navbar-links">
+        <li><a href="support.html">Support</a></li>
+        <li><a href="games.html">Games</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="signin.html">Sign In</a></li>
+      </ul>
+      <div class="navbar-profile">👤</div>
+    </nav>
+    <div class="profile-center">
+      <div class="profile-col">
+        <div class="p-card">
+          <div class="profile-header">
+            <div class="avatar-wrap">
+              <div class="big-avatar" id="bigAvatar" onclick="toggleEmojiPicker()">
+                <span id="avatarContent">G</span>
+                <span class="avatar-edit-hint">✏️</span>
+              </div>
+              <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
+              <div class="emoji-picker" id="emojiPicker">
+                <span class="emoji-opt" onclick="setAvatar('🌸')">🌸</span>
+                <span class="emoji-opt" onclick="setAvatar('🦋')">🦋</span>
+                <span class="emoji-opt" onclick="setAvatar('🌙')">🌙</span>
+                <span class="emoji-opt" onclick="setAvatar('⭐')">⭐</span>
+                <span class="emoji-opt" onclick="setAvatar('🌈')">🌈</span>
+                <span class="emoji-opt" onclick="setAvatar('🍀')">🍀</span>
+                <span class="emoji-opt" onclick="setAvatar('🦄')">🦄</span>
+                <span class="emoji-opt" onclick="setAvatar('🌺')">🌺</span>
+                <span class="emoji-opt" onclick="setAvatar('💫')">💫</span>
+                <span class="emoji-opt" onclick="setAvatar('🎀')">🎀</span>
+                <span class="emoji-opt" onclick="setAvatar('🌻')">🌻</span>
+                <span class="emoji-opt" onclick="setAvatar('🐝')">🐝</span>
+                <div class="upload-opt" onclick="document.getElementById('avatarUpload').click()">📁 Upload your photo</div>
+              </div>
+            </div>
+            <div class="profile-header-info">
+              <h2 id="displayName">Loading...</h2>
+              <p id="displayEmail">—</p>
+              <div class="member-since" id="memberSince">Member since —</div>
+              <span class="member-badge">✦ Mental AI Member</span>
+            </div>
+          </div>
+          <div class="p-section">
+            <div class="p-section-title">Edit Profile</div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Full Name</div>
+                <input class="field-input" id="editName" type="text" placeholder="Your name">
+              </div>
+              <div>
+                <div class="field-label">Email</div>
+                <input class="field-input" id="editEmail" type="email" disabled>
+              </div>
+            </div>
+            <button class="save-btn" id="saveBtn" onclick="saveProfile()">Save Changes</button>
+          </div>
+        </div>
+
+        <div class="p-card">
+          <div class="p-section">
+            <div class="p-section-title">Your Journey</div>
+            <div class="mood-summary">
+              <div class="mood-stat"><div class="mood-stat-num" id="statChats">—</div><div class="mood-stat-label">Conversations</div></div>
+              <div class="mood-stat"><div class="mood-stat-num" id="statEmotion">—</div><div class="mood-stat-label">Top Emotion</div></div>
+              <div class="mood-stat"><div class="mood-stat-num" id="statLast">—</div><div class="mood-stat-label">Last Chat</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-card">
+          <div class="p-section">
+            <div class="p-section-title">Trusted Contact</div>
+            <div class="field-row">
+              <div>
+                <div class="field-label">Name</div>
+                <input class="field-input" id="crisisName" type="text" placeholder="e.g. Mom, Best Friend">
+              </div>
+              <div>
+                <div class="field-label">Phone Number</div>
+                <input class="field-input" id="crisisPhone" type="tel" placeholder="+91 XXXXX XXXXX" maxlength="13">
+                <div class="field-error" id="phoneError">Please enter a valid 10-digit phone number</div>
+              </div>
+            </div>
+            <button class="save-btn" onclick="saveCrisisContact()">Save Contact</button>
+          </div>
+        </div>
+
+        <div class="p-card">
+          <div class="p-section">
+            <div class="p-section-title">Preferences</div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Daily Check-in Reminder</div><div class="toggle-sub">Get a gentle nudge each morning</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="reminderToggle" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Mood Tracking</div><div class="toggle-sub">Save emotional patterns over time</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="moodToggle" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Anonymous Mode</div><div class="toggle-sub">Don't save chat history</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="anonToggle"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-card">
+          <div class="p-section">
+            <div class="p-section-title">Account</div>
+            <button class="action-btn btn-add" onclick="addAccount()">➕ Add Another Account</button>
+            <button class="action-btn btn-signout" onclick="logout()">🚪 Sign Out</button>
+            <button class="action-btn btn-delete" onclick="openDeleteModal()">🗑️ Delete Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+      <h3>Delete your account?</h3>
+      <p>This will permanently delete your account and all your conversations. This cannot be undone.</p>
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+        <button class="modal-confirm" onclick="confirmDelete()">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="auth.js"></script>
+  <script>
+    if (!isLoggedIn()) window.location.href = 'signin.html';
+    const API = 'http://127.0.0.1:8000';
+    let currentUserId = '';
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const user = getUser();
+      currentUserId = user.id;
+
+      // Avatar
+      const savedAvatar = localStorage.getItem(`user_avatar_${user.id}`);
+      if (savedAvatar && savedAvatar.startsWith('data:image')) {
+        document.getElementById('avatarContent').innerHTML = `<img src="${savedAvatar}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
+      } else {
+        document.getElementById('avatarContent').textContent = savedAvatar || getInitial(user.name);
+      }
+
+      document.getElementById('displayName').textContent = user.name;
+      document.getElementById('displayEmail').textContent = user.email || 'Mental AI User';
+      document.getElementById('editName').value = user.name;
+      document.getElementById('editEmail').value = user.email || '';
+
+      const since = localStorage.getItem('member_since') || new Date().toISOString();
+      if (!localStorage.getItem('member_since')) localStorage.setItem('member_since', since);
+      document.getElementById('memberSince').textContent = `Member since ${new Date(since).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+
+      // Per-user crisis contact
+      document.getElementById('crisisName').value = localStorage.getItem(`crisis_name_${user.id}`) || '';
+      document.getElementById('crisisPhone').value = localStorage.getItem(`crisis_phone_${user.id}`) || '';
+
+      // Load preferences
+      document.getElementById('anonToggle').checked = localStorage.getItem(`anon_mode_${user.id}`) === 'true';
+      document.getElementById('reminderToggle').checked = localStorage.getItem(`reminder_${user.id}`) !== 'false';
+      document.getElementById('moodToggle').checked = localStorage.getItem(`mood_tracking_${user.id}`) !== 'false';
+
+      // Save preference changes
+      document.getElementById('anonToggle').addEventListener('change', (e) => {
+        localStorage.setItem(`anon_mode_${user.id}`, e.target.checked);
+        showToast(e.target.checked ? 'Anonymous mode on — chats won\'t be saved 🔒' : 'Anonymous mode off — chats will be saved');
+      });
+      document.getElementById('reminderToggle').addEventListener('change', (e) => {
+        localStorage.setItem(`reminder_${user.id}`, e.target.checked);
+      });
+      document.getElementById('moodToggle').addEventListener('change', (e) => {
+        localStorage.setItem(`mood_tracking_${user.id}`, e.target.checked);
+      });
+
+      await loadMoodSummary(user.id);
+
+      document.getElementById('editName').addEventListener('input', () => {
+        document.getElementById('saveBtn').style.opacity = document.getElementById('editName').value.trim() !== user.name ? '1' : '0.6';
+      });
+    });
+
+    async function loadMoodSummary(userId) {
+      try {
+        const res = await fetch(`${API}/history/${userId}`);
+        const history = await res.json();
+        if (!Array.isArray(history)) return;
+        document.getElementById('statChats').textContent = history.length;
+        const emotions = history.map(h => h.clinical_markers?.emotion_tag).filter(Boolean);
+        if (emotions.length) {
+          const freq = {};
+          emotions.forEach(e => freq[e] = (freq[e] || 0) + 1);
+          document.getElementById('statEmotion').textContent = Object.entries(freq).sort((a,b) => b[1]-a[1])[0][0];
+        }
+        if (history.length) {
+          const days = Math.floor((Date.now() - new Date(history[0].timestamp)) / 86400000);
+          document.getElementById('statLast').textContent = days === 0 ? 'Today' : `${days}d ago`;
+        }
+      } catch(e) { console.log('Could not load history', e); }
+    }
+
+    function toggleEmojiPicker() { document.getElementById('emojiPicker').classList.toggle('open'); }
+
+    function setAvatar(emoji) {
+      localStorage.setItem(`user_avatar_${currentUserId}`, emoji);
+      localStorage.setItem('user_avatar', emoji);
+      document.getElementById('avatarContent').textContent = emoji;
+      document.getElementById('emojiPicker').classList.remove('open');
+      updateNavbar();
+      showToast('Avatar updated! ✨');
+    }
+
+    function uploadAvatar(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = e.target.result;
+        localStorage.setItem(`user_avatar_${currentUserId}`, imageData);
+        localStorage.setItem('user_avatar', imageData);
+        document.getElementById('avatarContent').innerHTML = `<img src="${imageData}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
+        document.getElementById('emojiPicker').classList.remove('open');
+        updateNavbar();
+        showToast('Profile photo updated! 📸');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveProfile() {
+      const newName = document.getElementById('editName').value.trim();
+      if (!newName) { alert('Name cannot be empty'); return; }
+      localStorage.setItem('user_name', newName);
+      document.getElementById('displayName').textContent = newName;
+      updateNavbar();
+      showToast('Profile updated! ✦');
+    }
+
+    function saveCrisisContact() {
+      const name = document.getElementById('crisisName').value.trim();
+      const phone = document.getElementById('crisisPhone').value.trim();
+      const digits = phone.replace(/\D/g, '');
+      const phoneError = document.getElementById('phoneError');
+
+      if (phone && digits.length !== 10) {
+        phoneError.style.display = 'block';
+        return;
+      }
+      phoneError.style.display = 'none';
+
+      localStorage.setItem(`crisis_name_${currentUserId}`, name);
+      localStorage.setItem(`crisis_phone_${currentUserId}`, phone);
+      showToast('Trusted contact saved 💜');
+    }
+
+    function addAccount() {
+      const accounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
+      const current = getUser();
+      if (!accounts.find(a => a.id === current.id)) { accounts.push(current); localStorage.setItem('saved_accounts', JSON.stringify(accounts)); }
+      localStorage.setItem('adding_account', 'true');
+      window.location.href = 'signin.html';
+    }
+
+    function openDeleteModal() { document.getElementById('deleteModal').classList.add('open'); }
+    function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('open'); }
+
+    async function confirmDelete() {
+      const user = getUser();
+      try {
+        const res = await fetch(`${API}/auth/delete/${user.id}`, { method: 'DELETE' });
+        if (res.ok) { localStorage.clear(); window.location.href = 'index.html'; }
+        else showToast('Something went wrong. Try again.');
+      } catch(e) { showToast('Network error. Try again.'); }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('bigAvatar').contains(e.target) && !document.getElementById('avatarUpload').contains(e.target)) {
+        document.getElementById('emojiPicker').classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>
