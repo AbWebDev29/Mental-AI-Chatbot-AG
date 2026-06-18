@@ -99,7 +99,8 @@
 
   <script src="auth.js"></script>
   <script>
-    const API = 'http://127.0.0.1:8000';
+    // Determine API base: prefer `API_BASE_URL`, then `AUTH_API`, then origin
+    const API = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : ((typeof AUTH_API !== 'undefined') ? AUTH_API : window.location.origin);
     const chatDisplay = document.getElementById('messagesArea');
     const userId = localStorage.getItem('user_id');
     let currentSessionId = generateSessionId();

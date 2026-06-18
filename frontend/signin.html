@@ -345,9 +345,12 @@
   </div>
 
   <script>
+    // Determine base endpoint (uses API_BASE_URL if provided by auth.js)
+    const BASE = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : ((typeof AUTH_API !== 'undefined') ? AUTH_API : window.location.origin);
+
     async function handleGoogleSignIn(response) {
   try {
-    const res = await fetch('http://127.0.0.1:8000/auth/google', {
+    const res = await fetch(`${BASE}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: response.credential })
@@ -395,7 +398,7 @@
       const password = document.getElementById('password').value;
 
       try {
-        const response = await fetch('http://127.0.0.1:8000/auth/signin', {
+        const response = await fetch(`${BASE}/auth/signin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -412,7 +415,7 @@
         } else if (response.status === 401) {
           // Try creating account automatically for new credentials
           const nameCandidate = email.split('@')[0];
-          const signupResponse = await fetch('http://127.0.0.1:8000/auth/signup', {
+          const signupResponse = await fetch(`${BASE}/auth/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, full_name: nameCandidate })
@@ -453,7 +456,7 @@
       }
 
       try {
-        const response = await fetch('http://127.0.0.1:8000/auth/signup', {
+        const response = await fetch(`${BASE}/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, full_name: fullName })
