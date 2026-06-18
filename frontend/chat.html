@@ -225,17 +225,10 @@ sessions.forEach(s => {
 
     async function showWelcome() {
       try {
-        const res = await fetch(`${API}/memory/${userId}`);
-        const memory = await res.json();
         const userName = localStorage.getItem('user_name') || 'friend';
-
-        let greeting = '';
-        if (memory.total_sessions > 1) {
-          greeting = `Welcome back, ${userName} 🌸 I remember you — last time you were feeling <strong>${memory.top_emotion || 'a lot'}</strong>. How are things going today?`;
-        } else {
-          greeting = `Hello 🌸 I'm your Mental AI companion. I'm here to listen, support, and guide you through anything you're feeling. What's on your mind today?`;
-        }
-        appendMessage(greeting, 'ai');
+        const res = await fetch(`${API}/greeting/${userId}?name=${encodeURIComponent(userName)}`);
+        const data = await res.json();
+        appendMessage(data.greeting, 'ai');
       } catch(e) {
         appendMessage(`Hello 🌸 I'm your Mental AI companion. I'm here to listen and support you. What's on your mind today?`, 'ai');
       }

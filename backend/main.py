@@ -16,9 +16,9 @@ env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path, override=True)
 
 # Internal module imports
-from database import connect_to_mongo, save_session_data, db
+from database import connect_to_mongo, save_session_data, db, get_latest_session_messages
 from nlp_engine import get_clinical_markers, get_secondary_variation, get_opening_phrase, get_llama_clinical_analysis
-from llm_service import generate_llama_response
+from llm_service import generate_llama_response, generate_greeting
 
 # 2. Initialization
 app = FastAPI(title="Clinical AI Assistant API")
@@ -53,26 +53,25 @@ async def chat_with_analysis(user_id: str = Query(...), message: str = Query(...
     """
     Processes user message with 'Adaptive Intent Detection' and 'Loop Prevention'.
     """
-    # 1. Fetch Chat History
-    cursor = db.sessions.find({"user_id": user_id, "session_id": session_id}).sort("timestamp", -1).limit(10)
-    history_docs: List[Dict[str, Any]] = await cursor.to_list(length=5)
-    
-    # Extract Last AI message for 'Question-Answer Detection'
-    last_ai_msg = history_docs[0].get("ai_reply", "") if history_docs else ""
-    # Use a loop to avoid slice-related lint issues in certain environments
+    # 1. Fetch Chat History: get the single absolute latest session thread
+    latest_thread = await get_latest_session_messages(user_id)
+
+    # latest_thread is chronological (oldest -> newest). Build last_responses
     last_responses = []
-    for doc in history_docs:
-        if len(last_responses) >= 2: break
+    for doc in reversed(latest_thread):
+        if len(last_responses) >= 2:
+            break
         last_responses.append(str(doc.get("ai_reply", "")))
-    
-    # 2. Clean History for Context Layer
-    history_docs = list(reversed(history_docs))
+
+    last_ai_msg = last_responses[0] if last_responses else ""
+
+    # Clean History for Context Layer (chronological order)
     clean_history = [
-        {"user": doc.get("message", ""), "ai": doc.get("ai_reply", ""), "markers": doc.get("markers", {})}
-        for doc in history_docs
+        {"user": doc.get("message", ""), "ai": doc.get("ai_reply", ""), "markers": doc.get("clinical_markers", {})}
+        for doc in latest_thread
     ]
-    
-    # 3. Create Context Layer from History
+
+    # Create Context Layer from History
     context_from_history = "\n".join([f"User: {h['user']} AI: {h['ai']}" for h in clean_history])
     
     # 4. Call Llama 3.2 instead of old markers logic
@@ -186,7 +185,7 @@ async def get_patient_history(user_id: str):
         print(f"❌ HISTORY ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail="Database retrieval failed")
     
-from llm_service import generate_llama_response
+from llm_service import generate_llama_response, generate_greeting
 
 @app.delete("/auth/delete/{user_id}")
 async def delete_account(user_id: str):
@@ -253,7 +252,7 @@ async def get_user_memory(user_id: str):
     Used to give the bot context about who the user is.
     """
     try:
-        cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(50)
+        cursor = db.sessions.find({"user_id": user_id}).sort([("timestamp", -1), ("_id", -1)]).limit(50)
         history = await cursor.to_list(length=50)
 
         emotions = [h.get("clinical_markers", {}).get("emotion_tag") for h in history if h.get("clinical_markers")]
@@ -268,14 +267,157 @@ async def get_user_memory(user_id: str):
                 freq[e] = freq.get(e, 0) + 1
             top_emotion = max(freq, key=freq.get)
 
+        # Strictly look at the single most recently updated conversation entry to determine latest mood state
+        latest_emotion = None
+        latest_state_is_positive = False
+        latest_message = ""
+        latest_topic = "things being heavy"
+        
+        if history:
+            latest_doc = history[0]
+            latest_message = latest_doc.get("message", "")
+            markers = latest_doc.get("clinical_markers") or {}
+            latest_emotion = markers.get("emotion_tag")
+            latest_cluster = markers.get("emotion_cluster")
+            
+            # Identify the topic keyword dynamically
+            msg_lower = latest_message.lower()
+            if "homesick" in msg_lower:
+                latest_topic = "homesickness"
+            elif "sad" in msg_lower or "saad" in msg_lower:
+                latest_topic = "feeling down"
+            elif "stress" in msg_lower or "stressed" in msg_lower:
+                latest_topic = "stress"
+            elif "work" in msg_lower:
+                latest_topic = "work stress"
+            elif latest_emotion:
+                latest_topic = latest_emotion.lower()
+            
+            positive_keywords = {"good", "happy", "fine", "great", "well", "joy", "excited", "cheerful", "relieved", "better"}
+            negative_keywords = {"sad", "saad", "stressed", "bad", "anxious", "homesick", "depressed", "overwhelmed", "exhausted", "lonely", "tearful", "forlorn"}
+            
+            has_pos_kw = any(w in msg_lower for w in positive_keywords)
+            has_neg_kw = any(w in msg_lower for w in negative_keywords)
+            
+            if (latest_cluster == "JOY" or has_pos_kw) and not has_neg_kw:
+                latest_state_is_positive = True
+                if not latest_emotion:
+                    latest_emotion = "Joyful"
+            else:
+                latest_state_is_positive = False
+
         return {
             "total_sessions": len(history),
             "top_emotion": top_emotion,
             "recent_topics": topics,
-            "last_session": str(history[0]["timestamp"]) if history else None
+            "last_session": str(history[0]["timestamp"]) if history else None,
+            "latest_emotion": latest_emotion,
+            "latest_state_is_positive": latest_state_is_positive,
+            "latest_message": latest_message,
+            "latest_topic": latest_topic
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/greeting/{user_id}")
+async def get_dynamic_greeting(user_id: str, name: str = Query(default="friend")):
+    """
+    Generates a dynamic, personalised welcome greeting by reading the user's
+    real conversation history from MongoDB and passing it to Ollama.
+    """
+    try:
+        # 1. Build the same memory summary used by /memory
+        cursor = db.sessions.find({"user_id": user_id}).sort([("timestamp", -1), ("_id", -1)]).limit(50)
+        history = await cursor.to_list(length=50)
+
+        emotions = [
+            h.get("clinical_markers", {}).get("emotion_tag")
+            for h in history if h.get("clinical_markers")
+        ]
+        emotions = [e for e in emotions if e]
+
+        topics = [h.get("message", "")[:60] for h in history[:5]]
+
+        top_emotion = None
+        if emotions:
+            freq = {}
+            for e in emotions:
+                freq[e] = freq.get(e, 0) + 1
+            top_emotion = max(freq, key=freq.get)
+
+        # Strictly look at the single most recently updated conversation entry to determine latest mood state
+        latest_emotion = None
+        latest_state_is_positive = False
+        latest_message = ""
+        latest_topic = "things being heavy"
+        
+        if history:
+            latest_doc = history[0]
+            latest_message = latest_doc.get("message", "")
+            markers = latest_doc.get("clinical_markers") or {}
+            latest_emotion = markers.get("emotion_tag")
+            latest_cluster = markers.get("emotion_cluster")
+            
+            # Identify the topic keyword dynamically
+            msg_lower = latest_message.lower()
+            if "homesick" in msg_lower:
+                latest_topic = "homesickness"
+            elif "sad" in msg_lower or "saad" in msg_lower:
+                latest_topic = "feeling down"
+            elif "stress" in msg_lower or "stressed" in msg_lower:
+                latest_topic = "stress"
+            elif "work" in msg_lower:
+                latest_topic = "work stress"
+            elif latest_emotion:
+                latest_topic = latest_emotion.lower()
+            
+            positive_keywords = {"good", "happy", "fine", "great", "well", "joy", "excited", "cheerful", "relieved", "better"}
+            negative_keywords = {"sad", "saad", "stressed", "bad", "anxious", "homesick", "depressed", "overwhelmed", "exhausted", "lonely", "tearful", "forlorn"}
+            
+            has_pos_kw = any(w in msg_lower for w in positive_keywords)
+            has_neg_kw = any(w in msg_lower for w in negative_keywords)
+            
+            if (latest_cluster == "JOY" or has_pos_kw) and not has_neg_kw:
+                latest_state_is_positive = True
+                if not latest_emotion:
+                    latest_emotion = "Joyful"
+            else:
+                latest_state_is_positive = False
+
+        memory = {
+            "total_sessions": len(history),
+            "top_emotion": top_emotion,
+            "recent_topics": topics,
+            "last_session": str(history[0]["timestamp"]) if history else None,
+            "latest_emotion": latest_emotion,
+            "latest_state_is_positive": latest_state_is_positive,
+            "latest_message": latest_message,
+            "latest_topic": latest_topic
+        }
+
+        # 2. First-time user → skip Ollama, return a lightweight static greeting
+        if memory["total_sessions"] == 0:
+            return {
+                "greeting": (
+                    f"Hello {name} 🌸 I'm your Mental AI companion. "
+                    "I'm here to listen, support, and guide you through anything you're feeling.\n\n"
+                    "What's on your mind today?"
+                )
+            }
+
+        # 3. Returning user → generate a dynamic greeting via Ollama
+        greeting_text = generate_greeting(name, memory)
+        return {"greeting": greeting_text}
+
+    except Exception as e:
+        print(f"❌ GREETING ERROR: {str(e)}")
+        # Graceful fallback so the UI always has something to show
+        return {
+            "greeting": (
+                f"Hey {name} 🌸 Welcome back.\n\n"
+                "How are you feeling today?"
+            )
+        }
 
 # --- SECURE GOOGLE AUTH ---
 from google.oauth2 import id_token

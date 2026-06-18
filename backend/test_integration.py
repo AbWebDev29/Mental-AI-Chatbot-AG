@@ -6,6 +6,13 @@ Run this to test that clinical_markers are being stored properly
 
 import asyncio
 import sys
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path, override=True)
+
 from nlp_engine import get_llama_clinical_analysis
 
 def test_clinical_analysis():
