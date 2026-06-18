@@ -208,13 +208,14 @@ Built by **Gayathri** & **Anvi** as part of a real-world AI engineering portfoli
 
 | Feature | Owner |
 |---------|-------|
-| Auth, Profile, Settings | Gayathri |
-| Sidebar & Conversation Memory | Gayathri |
-| Google OAuth | Gayathri |
+| Auth, Profile, Settings | Gayathri Menon|
+| Sidebar & Conversation Memory | Gayathri Menon|
+| Google OAuth | Gayathri Menon|
 | AI Response Engine | Shared |
-| Clinical NLP System | Shared |
-| Support Page | Anvi |
-| Games Section | Anvi |
+| Frontend | Shared |
+| Clinical NLP System | Anvi Bansal |
+| Support Page | Anvi Bansal|
+| Games Section | Anvi Bansal|
 
 ---
 
