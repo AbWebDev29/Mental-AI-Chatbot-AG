@@ -350,7 +350,7 @@
 
     async function handleGoogleSignIn(response) {
   try {
-    const res = await fetch(`${BASE}/auth/google`, {
+    const res = await fetch('https://mirraai-ln7e.onrender.com/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: response.credential })
@@ -398,7 +398,7 @@
       const password = document.getElementById('password').value;
 
       try {
-        const response = await fetch(`${BASE}/auth/signin`, {
+        const response = await fetch('https://mirraai-ln7e.onrender.com/auth/signin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -415,7 +415,7 @@
         } else if (response.status === 401) {
           // Try creating account automatically for new credentials
           const nameCandidate = email.split('@')[0];
-          const signupResponse = await fetch(`${BASE}/auth/signup`, {
+          const signupResponse = await fetch('https://mirraai-ln7e.onrender.com/auth/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, full_name: nameCandidate })
@@ -456,7 +456,7 @@
       }
 
       try {
-        const response = await fetch(`${BASE}/auth/signup`, {
+        const response = await fetch('https://mirraai-ln7e.onrender.com/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, full_name: fullName })
