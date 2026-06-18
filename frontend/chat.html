@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mental AI — Chat</title>
+  <title>Mirra AI — Chat</title>
   <link rel="stylesheet" href="styles/global.css">
   <style>
     body { overflow: hidden; }
@@ -57,7 +57,7 @@
     <nav class="navbar">
       <a href="index.html" class="navbar-logo">
         <div class="logo-circle">🌸</div>
-        <div class="logo-text"><span>Mental</span> AI</div>
+        <div class="logo-text"><span>Mirra</span> AI</div>
       </a>
       <ul class="navbar-links">
         <li><a href="support.html">Support</a></li>
@@ -79,7 +79,7 @@
         <div class="chat-header">
           <div class="chat-header-avatar">🌸</div>
           <div class="chat-header-info">
-            <h3>Mental AI</h3>
+            <h3>Mirra AI</h3>
             <p><span class="status-dot"></span> Online · Always here for you</p>
           </div>
         </div>
@@ -230,7 +230,7 @@ sessions.forEach(s => {
         const data = await res.json();
         appendMessage(data.greeting, 'ai');
       } catch(e) {
-        appendMessage(`Hello 🌸 I'm your Mental AI companion. I'm here to listen and support you. What's on your mind today?`, 'ai');
+        appendMessage(`Hello 🌸 I'm your Mirra AI companion. I'm here to listen and support you. What's on your mind today?`, 'ai');
       }
     }
 
