@@ -285,21 +285,21 @@
           </form>
 
           <div class="divider"><span>or continue with</span></div>
-<div class="social-row">
-  <div id="g_id_onload"
-    data-client_id="482645097952-9ltr5vpaoh9e0totmj00qj19f5u87ltp.apps.googleusercontent.com"
-    data-callback="handleGoogleSignIn"
-    data-auto_prompt="false">
-  </div>
-  <div class="g_id_signin"
-    data-type="standard"
-    data-shape="pill"
-    data-theme="outline"
-    data-text="continue_with"
-    data-size="large"
-    data-logo_alignment="left">
-  </div>
-</div>
+          <div class="social-row">
+            <div id="g_id_onload"
+              data-client_id="482645097952-9ltr5vpaoh9e0totmj00qj19f5u87ltp.apps.googleusercontent.com"
+              data-callback="handleGoogleSignIn"
+              data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+              data-type="standard"
+              data-shape="pill"
+              data-theme="outline"
+              data-text="continue_with"
+              data-size="large"
+              data-logo_alignment="left">
+            </div>
+          </div>
           <p class="toggle-text">
             Don't have an account?
             <button class="toggle-link" onclick="switchForm('signup')">Create Account</button>
@@ -312,26 +312,26 @@
           <h2>Create Account</h2>
           <p class="auth-subtitle">Start your wellness journey today</p>
 
-          <div class="field-group">
-            <div class="field-wrap">
-              <span class="field-icon">👤</span>
-              <input id="fullName" type="text" placeholder="Full name" autocomplete="name" required>
-            </div>
-            <div class="field-wrap">
-              <span class="field-icon">✉️</span>
-              <input id="signupEmail" type="email" placeholder="Email address" autocomplete="email" required>
-            </div>
-            <div class="field-wrap">
-              <span class="field-icon">🔒</span>
-              <input id="signupPassword" type="password" placeholder="Password" autocomplete="new-password" required>
-            </div>
-            <div class="field-wrap">
-              <span class="field-icon">🔐</span>
-              <input id="signupConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" required>
-            </div>
-          </div>
-
           <form id="signupForm" class="field-group">
+            <div class="field-group">
+              <div class="field-wrap">
+                <span class="field-icon">👤</span>
+                <input id="fullName" type="text" placeholder="Full name" autocomplete="name" required>
+              </div>
+              <div class="field-wrap">
+                <span class="field-icon">✉️</span>
+                <input id="signupEmail" type="email" placeholder="Email address" autocomplete="email" required>
+              </div>
+              <div class="field-wrap">
+                <span class="field-icon">🔒</span>
+                <input id="signupPassword" type="password" placeholder="Password" autocomplete="new-password" required>
+              </div>
+              <div class="field-wrap">
+                <span class="field-icon">🔐</span>
+                <input id="signupConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" required>
+              </div>
+            </div>
+
             <button type="submit" class="auth-submit">Create Account</button>
           </form>
 
@@ -345,34 +345,34 @@
   </div>
 
   <script>
-    // Determine base endpoint (uses API_BASE_URL if provided by auth.js)
     const BASE = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : ((typeof AUTH_API !== 'undefined') ? AUTH_API : window.location.origin);
 
     async function handleGoogleSignIn(response) {
-  try {
-    const res = await fetch('https://mirraai-ln7e.onrender.com/auth/google', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: response.credential })
-    });
+      try {
+        const res = await fetch('https://mirraai-ln7e.onrender.com/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: response.credential })
+        });
 
-    const result = await res.json();
+        const result = await res.json();
 
-    if (res.ok) {
-      localStorage.setItem('user_id', result.user_id);
-      localStorage.setItem('user_name', result.full_name);
-      localStorage.setItem('user_email', result.email);
-      const savedAvatar = localStorage.getItem('saved_avatar_' + result.email);
-      localStorage.setItem('user_avatar', savedAvatar || result.picture || '');
-      window.location.href = 'index.html';
-    } else {
-      alert(result.detail || 'Google sign in failed');
+        if (res.ok) {
+          localStorage.setItem('user_id', result.user_id);
+          localStorage.setItem('user_name', result.full_name);
+          localStorage.setItem('user_email', result.email);
+          const savedAvatar = localStorage.getItem('saved_avatar_' + result.email);
+          localStorage.setItem('user_avatar', savedAvatar || result.picture || '');
+          window.location.href = 'index.html';
+        } else {
+          alert(result.detail || 'Google sign in failed');
+        }
+      } catch(e) {
+        console.error('Google auth error', e);
+        alert('Network error during Google sign in');
+      }
     }
-  } catch(e) {
-    console.error('Google auth error', e);
-    alert('Network error during Google sign in');
-  }
-}
+
     function switchForm(target) {
       const signin = document.getElementById('signinPanel');
       const signup = document.getElementById('signupPanel');
@@ -382,7 +382,6 @@
       hiding.classList.remove('visible');
       hiding.classList.add('hidden');
 
-      // Small delay so hidden state processes before showing
       setTimeout(() => {
         showing.classList.remove('hidden');
         showing.classList.add('visible', 'animate-in');
@@ -390,7 +389,6 @@
       }, 50);
     }
 
-    // Handle Sign In Form
     async function onSignIn(event) {
       event.preventDefault();
       
@@ -413,7 +411,6 @@
           localStorage.setItem('user_email', email);
           window.location.href = 'index.html';
         } else if (response.status === 401) {
-          // Try creating account automatically for new credentials
           const nameCandidate = email.split('@')[0];
           const signupResponse = await fetch('https://mirraai-ln7e.onrender.com/auth/signup', {
             method: 'POST',
@@ -424,7 +421,7 @@
           const signupResult = await signupResponse.json();
           if (signupResponse.ok) {
             console.log('✅ Auto-created new account, retrying sign-in');
-            await onSignIn(event); // retry sign-in after creating user
+            await onSignIn(event);
           } else {
             alert('Login failed and auto-signup failed: ' + (signupResult.detail || 'Unknown error'));
           }
