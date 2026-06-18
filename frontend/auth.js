@@ -1,6 +1,9 @@
-const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:10000" 
-  : "https://mirraai-ln7e.onrender.com";
+// Looks for the variable injected by your environment, otherwise falls back to localhost
+const API_BASE_URL = (typeof process !== 'undefined' && process.env.VITE_API_BASE_URL) 
+  ? process.env.VITE_API_BASE_URL 
+  : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" 
+      ? "http://localhost:10000" 
+      : "https://mirraai-ln7e.onrender.com");
 function getUser() {
   return {
     id: localStorage.getItem('user_id'),
