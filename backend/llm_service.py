@@ -55,8 +55,8 @@ def generate_llama_response(user_input, context_docs):
 
 
 def generate_greeting(user_name, memory):
-    # Return a static, short welcome message irrespective of DB/history
-    return "Hey Anvi, welcome back! How are things tracking today?"
+    # Return a static, short welcome message using the provided user name
+    return f"Hey {user_name}, welcome back! How are things tracking today?"
 
 
     # ---------------------------------------------------------------------------
