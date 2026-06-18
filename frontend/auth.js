@@ -7,6 +7,10 @@ function getUser() {
 }
 function isLoggedIn() { return !!localStorage.getItem('user_id'); }
 function logout() {
+  // Save avatar before clearing so it restores on next login
+  const email = localStorage.getItem('user_email');
+  const avatar = localStorage.getItem('user_avatar');
+  if (email && avatar) localStorage.setItem('saved_avatar_' + email, avatar);
   localStorage.removeItem('user_id');
   localStorage.removeItem('user_name');
   localStorage.removeItem('user_email');
@@ -21,7 +25,7 @@ function injectProfileDropdown() {
   dropdown.style.cssText = 'position:fixed;top:68px;right:40px;width:240px;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);border:1.5px solid rgba(255,255,255,0.85);border-radius:20px;box-shadow:0 16px 48px rgba(180,120,160,0.22);z-index:9999;overflow:hidden;';
   const user = getUser();
   const savedAvatar = localStorage.getItem('user_avatar');
-  const avatarHtml = (savedAvatar && savedAvatar.startsWith('data:image'))
+  const avatarHtml = (savedAvatar && (savedAvatar.startsWith('data:image') || savedAvatar.startsWith('http')))
     ? `<img src="${savedAvatar}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
     : `<div class="pd-avatar">${savedAvatar || getInitial(user.name)}</div>`;
   dropdown.innerHTML = `<style>.pd-header{padding:20px;background:linear-gradient(135deg,rgba(249,168,212,0.25),rgba(192,132,252,0.2));border-bottom:1px solid rgba(255,255,255,0.7);display:flex;align-items:center;gap:12px}.pd-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f9a8d4,#c084fc);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:white;font-family:'Outfit',sans-serif;flex-shrink:0}.pd-name{font-family:'Outfit',sans-serif;font-weight:600;font-size:0.95rem;color:#4a3a5c}.pd-email{font-family:'Outfit',sans-serif;font-size:0.75rem;color:#b0a0c0;margin-top:2px}.pd-menu{padding:8px}.pd-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:0.87rem;color:#7a6a8c;cursor:pointer;transition:all 0.18s ease;text-decoration:none}.pd-item:hover{background:rgba(249,168,212,0.18);color:#4a3a5c}.pd-divider{height:1px;background:rgba(180,120,160,0.12);margin:4px 8px}.pd-logout{color:#e07a7a!important}.pd-logout:hover{background:rgba(224,122,122,0.1)!important}</style><div class="pd-header">${avatarHtml}<div><div class="pd-name">${user.name}</div><div class="pd-email">${user.email||'Mental AI User'}</div></div></div><div class="pd-menu"><a href="profile.html" class="pd-item">👤 My Profile</a><a href="chat.html" class="pd-item">💬 My Chats</a><div class="pd-divider"></div><div class="pd-item pd-logout" onclick="logout()">🚪 Sign Out</div></div>`;
@@ -43,7 +47,7 @@ function updateNavbar() {
   if (isLoggedIn()) {
     const user = getUser();
     const savedAvatar = localStorage.getItem('user_avatar');
-    if (savedAvatar && savedAvatar.startsWith('data:image')) {
+    if (savedAvatar && (savedAvatar.startsWith('data:image') || savedAvatar.startsWith('http'))) {
       profileBtn.innerHTML = `<img src="${savedAvatar}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">`;
       profileBtn.style.background = 'none';
       profileBtn.style.padding = '0';

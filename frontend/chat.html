@@ -126,7 +126,13 @@
       const bubble = document.createElement('div');
       bubble.className = `message ${type}`;
       bubble.innerHTML = `
-        <div class="msg-avatar">${type === 'ai' ? '🌸' : (localStorage.getItem('user_avatar') || '👤')}</div>
+        <div class="msg-avatar" style="overflow:hidden;padding:0;">${(() => {
+          if (type === 'ai') return '🌸';
+          const av = localStorage.getItem('user_avatar');
+          if (!av) return '👤';
+          if (av.startsWith('http') || av.startsWith('data:image')) return '<img src="' + av + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">';
+          return av;
+        })()}</div>
         <div>
           <div class="msg-bubble">${text}</div>
           <div class="msg-time">${getTime()}</div>

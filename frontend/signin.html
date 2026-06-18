@@ -346,29 +346,28 @@
 
   <script>
     async function handleGoogleSignIn(response) {
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
-  const email = payload.email;
-  const name = payload.name;
+  try {
+    const res = await fetch('http://127.0.0.1:8000/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: response.credential })
+    });
 
-  // Try signup first, then signin
-  await fetch('http://127.0.0.1:8000/auth/signup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password: 'google-oauth', full_name: name })
-  });
+    const result = await res.json();
 
-  const res = await fetch('http://127.0.0.1:8000/auth/signin', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password: 'google-oauth' })
-  });
-
-  const result = await res.json();
-  if (res.ok) {
-    localStorage.setItem('user_id', result.user_id);
-    localStorage.setItem('user_name', result.full_name);
-    localStorage.setItem('user_email', email);
-    window.location.href = 'index.html';
+    if (res.ok) {
+      localStorage.setItem('user_id', result.user_id);
+      localStorage.setItem('user_name', result.full_name);
+      localStorage.setItem('user_email', result.email);
+      const savedAvatar = localStorage.getItem('saved_avatar_' + result.email);
+      localStorage.setItem('user_avatar', savedAvatar || result.picture || '');
+      window.location.href = 'index.html';
+    } else {
+      alert(result.detail || 'Google sign in failed');
+    }
+  } catch(e) {
+    console.error('Google auth error', e);
+    alert('Network error during Google sign in');
   }
 }
     function switchForm(target) {

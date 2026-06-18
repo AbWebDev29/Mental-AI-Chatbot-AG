@@ -149,6 +149,7 @@ async def signup(auth: UserAuth):
     
     new_user = await db.users.insert_one({
         "email": auth.email,
+        "auth_provider": "email",
         "password": auth.password,  # Note: In production, use hashing (bcrypt)
         "full_name": auth.full_name,
         "created_at": datetime.datetime.utcnow()
@@ -157,7 +158,8 @@ async def signup(auth: UserAuth):
 
 @app.post("/auth/signin")
 async def signin(auth: UserAuth):
-    user = await db.users.find_one({"email": auth.email, "password": auth.password})
+    user = await db.users.find_one({"email": auth.email,
+        "auth_provider": "email", "password": auth.password})
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -274,3 +276,68 @@ async def get_user_memory(user_id: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- SECURE GOOGLE AUTH ---
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+GOOGLE_CLIENT_ID = "482645097952-9ltr5vpaoh9e0totmj00qj19f5u87ltp.apps.googleusercontent.com"
+
+class GoogleAuthRequest(BaseModel):
+    token: str
+
+@app.post("/auth/google")
+async def google_auth(body: GoogleAuthRequest):
+    try:
+        # Verify the token with Google's servers
+        idinfo = id_token.verify_oauth2_token(
+            body.token,
+            google_requests.Request(),
+            GOOGLE_CLIENT_ID
+        )
+
+        email = idinfo.get("email")
+        name = idinfo.get("name", email.split("@")[0])
+        google_id = idinfo.get("sub")  # unique Google user ID
+        picture = idinfo.get("picture", "")
+
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not found in token")
+
+        # Check if user exists
+        user = await db.users.find_one({"email": email})
+
+        if user:
+            # If user exists but was created with password (not Google), block them
+            if user.get("auth_provider") == "email":
+                raise HTTPException(
+                    status_code=400,
+                    detail="This email is registered with a password. Please sign in with email instead."
+                )
+            # Update their info in case name/picture changed
+            await db.users.update_one(
+                {"email": email},
+                {"$set": {"full_name": name, "picture": picture, "google_id": google_id}}
+            )
+        else:
+            # Create new Google user
+            await db.users.insert_one({
+                "email": email,
+                "full_name": name,
+                "google_id": google_id,
+                "picture": picture,
+                "auth_provider": "google",
+                "created_at": datetime.datetime.utcnow()
+            })
+            user = await db.users.find_one({"email": email})
+
+        return {
+            "user_id": str(user["_id"]),
+            "full_name": name,
+            "email": email,
+            "picture": picture,
+            "status": "success"
+        }
+
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid Google token: {str(e)}")
