@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mental AI — My Profile</title>
   <link rel="stylesheet" href="styles/global.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     .profile-center{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px}
     .profile-col{display:flex;flex-direction:column;gap:20px;width:100%;max-width:520px}
@@ -31,6 +32,11 @@
     .mood-stat{background:rgba(255,255,255,0.5);border:1.5px solid rgba(255,255,255,0.75);border-radius:16px;padding:14px;text-align:center}
     .mood-stat-num{font-size:1.4rem;font-weight:700;color:var(--text-dark)}
     .mood-stat-label{font-size:0.7rem;color:var(--text-light);margin-top:3px}
+    .chart-tabs{display:flex;gap:8px;margin:16px 0 12px}
+    .chart-tab{padding:7px 18px;border-radius:999px;border:1.5px solid rgba(192,132,252,0.3);background:transparent;font-family:var(--font);font-size:0.8rem;font-weight:600;color:var(--text-light);cursor:pointer;transition:all 0.2s ease}
+    .chart-tab.active{background:linear-gradient(135deg,rgba(249,168,212,0.3),rgba(192,132,252,0.2));color:var(--text-dark);border-color:rgba(192,132,252,0.5)}
+    .chart-tab:hover{color:var(--text-dark)}
+    .chart-wrap{position:relative;height:200px;margin-top:8px}
     .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(180,120,160,0.1)}
     .toggle-row:last-child{border-bottom:none}
     .toggle-label{font-size:0.88rem;color:var(--text-mid)}
@@ -88,6 +94,8 @@
     </nav>
     <div class="profile-center">
       <div class="profile-col">
+
+        <!-- Header Card -->
         <div class="p-card">
           <div class="profile-header">
             <div class="avatar-wrap">
@@ -135,6 +143,7 @@
           </div>
         </div>
 
+        <!-- Journey + Charts Card -->
         <div class="p-card">
           <div class="p-section">
             <div class="p-section-title">Your Journey</div>
@@ -143,9 +152,23 @@
               <div class="mood-stat"><div class="mood-stat-num" id="statEmotion">—</div><div class="mood-stat-label">Top Emotion</div></div>
               <div class="mood-stat"><div class="mood-stat-num" id="statLast">—</div><div class="mood-stat-label">Last Chat</div></div>
             </div>
+            <div class="chart-tabs">
+              <button class="chart-tab active" onclick="switchChart('emotions', this)">Emotions</button>
+              <button class="chart-tab" onclick="switchChart('intensity', this)">Intensity</button>
+            </div>
+            <div id="chart-emotions" class="chart-wrap">
+              <canvas id="emotionChart"></canvas>
+            </div>
+            <div id="chart-intensity" class="chart-wrap" style="display:none">
+              <canvas id="intensityChart"></canvas>
+            </div>
+            <div id="chartEmpty" style="display:none;text-align:center;padding:30px;color:var(--text-light);font-size:0.85rem;">
+              Start chatting to see your mood journey 🌸
+            </div>
           </div>
         </div>
 
+        <!-- Trusted Contact Card -->
         <div class="p-card">
           <div class="p-section">
             <div class="p-section-title">Trusted Contact</div>
@@ -164,6 +187,7 @@
           </div>
         </div>
 
+        <!-- Preferences Card -->
         <div class="p-card">
           <div class="p-section">
             <div class="p-section-title">Preferences</div>
@@ -182,6 +206,7 @@
           </div>
         </div>
 
+        <!-- Account Card -->
         <div class="p-card">
           <div class="p-section">
             <div class="p-section-title">Account</div>
@@ -190,6 +215,7 @@
             <button class="action-btn btn-delete" onclick="openDeleteModal()">🗑️ Delete Account</button>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -212,14 +238,15 @@
     if (!isLoggedIn()) window.location.href = 'signin.html';
     const API = 'http://127.0.0.1:8000';
     let currentUserId = '';
+    let emotionChartInstance = null;
+    let intensityChartInstance = null;
 
     window.addEventListener('DOMContentLoaded', async () => {
       const user = getUser();
       currentUserId = user.id;
 
-      // Avatar
-      const savedAvatar = localStorage.getItem(`user_avatar_${user.id}`);
-      if (savedAvatar && savedAvatar.startsWith('data:image')) {
+      const savedAvatar = localStorage.getItem(`user_avatar_${user.id}`) || localStorage.getItem('user_avatar');
+      if (savedAvatar && (savedAvatar.startsWith('data:image') || savedAvatar.startsWith('http'))) {
         document.getElementById('avatarContent').innerHTML = `<img src="${savedAvatar}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
       } else {
         document.getElementById('avatarContent').textContent = savedAvatar || getInitial(user.name);
@@ -234,26 +261,19 @@
       if (!localStorage.getItem('member_since')) localStorage.setItem('member_since', since);
       document.getElementById('memberSince').textContent = `Member since ${new Date(since).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
 
-      // Per-user crisis contact
       document.getElementById('crisisName').value = localStorage.getItem(`crisis_name_${user.id}`) || '';
       document.getElementById('crisisPhone').value = localStorage.getItem(`crisis_phone_${user.id}`) || '';
 
-      // Load preferences
       document.getElementById('anonToggle').checked = localStorage.getItem(`anon_mode_${user.id}`) === 'true';
       document.getElementById('reminderToggle').checked = localStorage.getItem(`reminder_${user.id}`) !== 'false';
       document.getElementById('moodToggle').checked = localStorage.getItem(`mood_tracking_${user.id}`) !== 'false';
 
-      // Save preference changes
       document.getElementById('anonToggle').addEventListener('change', (e) => {
         localStorage.setItem(`anon_mode_${user.id}`, e.target.checked);
-        showToast(e.target.checked ? 'Anonymous mode on — chats won\'t be saved 🔒' : 'Anonymous mode off — chats will be saved');
+        showToast(e.target.checked ? 'Anonymous mode on 🔒' : 'Anonymous mode off');
       });
-      document.getElementById('reminderToggle').addEventListener('change', (e) => {
-        localStorage.setItem(`reminder_${user.id}`, e.target.checked);
-      });
-      document.getElementById('moodToggle').addEventListener('change', (e) => {
-        localStorage.setItem(`mood_tracking_${user.id}`, e.target.checked);
-      });
+      document.getElementById('reminderToggle').addEventListener('change', (e) => localStorage.setItem(`reminder_${user.id}`, e.target.checked));
+      document.getElementById('moodToggle').addEventListener('change', (e) => localStorage.setItem(`mood_tracking_${user.id}`, e.target.checked));
 
       await loadMoodSummary(user.id);
 
@@ -262,22 +282,110 @@
       });
     });
 
+    function switchChart(type, btn) {
+      document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('chart-emotions').style.display = type === 'emotions' ? 'block' : 'none';
+      document.getElementById('chart-intensity').style.display = type === 'intensity' ? 'block' : 'none';
+    }
+
     async function loadMoodSummary(userId) {
       try {
         const res = await fetch(`${API}/history/${userId}`);
         const history = await res.json();
-        if (!Array.isArray(history)) return;
+
+        if (!Array.isArray(history) || history.length === 0) {
+          document.getElementById('chartEmpty').style.display = 'block';
+          document.getElementById('chart-emotions').style.display = 'none';
+          document.getElementById('chart-intensity').style.display = 'none';
+          document.getElementById('statChats').textContent = '0';
+          return;
+        }
+
         document.getElementById('statChats').textContent = history.length;
+
         const emotions = history.map(h => h.clinical_markers?.emotion_tag).filter(Boolean);
         if (emotions.length) {
           const freq = {};
           emotions.forEach(e => freq[e] = (freq[e] || 0) + 1);
           document.getElementById('statEmotion').textContent = Object.entries(freq).sort((a,b) => b[1]-a[1])[0][0];
         }
+
         if (history.length) {
           const days = Math.floor((Date.now() - new Date(history[0].timestamp)) / 86400000);
           document.getElementById('statLast').textContent = days === 0 ? 'Today' : `${days}d ago`;
         }
+
+        // Emotion frequency chart
+        const emotionFreq = {};
+        emotions.forEach(e => emotionFreq[e] = (emotionFreq[e] || 0) + 1);
+        const emotionLabels = Object.keys(emotionFreq);
+        const emotionData = Object.values(emotionFreq);
+        const colorMap = {
+          'Joyful':'rgba(134,239,172,0.7)','Happy':'rgba(134,239,172,0.7)',
+          'Overwhelmed':'rgba(249,168,212,0.7)','Anxious':'rgba(192,132,252,0.7)',
+          'Sad':'rgba(147,197,253,0.7)','Angry':'rgba(252,165,165,0.7)',
+          'Stressed':'rgba(253,186,116,0.7)','Tired':'rgba(196,181,253,0.7)'
+        };
+        const emotionColors = emotionLabels.map(e => colorMap[e] || 'rgba(212,184,240,0.7)');
+
+        if (emotionChartInstance) emotionChartInstance.destroy();
+        emotionChartInstance = new Chart(document.getElementById('emotionChart'), {
+          type: 'bar',
+          data: {
+            labels: emotionLabels,
+            datasets: [{
+              data: emotionData,
+              backgroundColor: emotionColors,
+              borderColor: emotionColors.map(c => c.replace('0.7','1')),
+              borderWidth: 1.5,
+              borderRadius: 8,
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} time${ctx.raw > 1 ? 's' : ''}` } } },
+            scales: {
+              y: { beginAtZero: true, ticks: { stepSize: 1, color: '#b0a0c0', font: { family: 'Outfit' } }, grid: { color: 'rgba(180,120,160,0.1)' } },
+              x: { ticks: { color: '#7a6a8c', font: { family: 'Outfit', size: 11 } }, grid: { display: false } }
+            }
+          }
+        });
+
+        // Intensity over time chart
+        const sorted = [...history].reverse();
+        const intensityLabels = sorted.map(h => new Date(h.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const intensityData = sorted.map(h => h.clinical_markers?.intensity || 0);
+
+        if (intensityChartInstance) intensityChartInstance.destroy();
+        intensityChartInstance = new Chart(document.getElementById('intensityChart'), {
+          type: 'line',
+          data: {
+            labels: intensityLabels,
+            datasets: [{
+              label: 'Emotional Intensity',
+              data: intensityData,
+              borderColor: 'rgba(192,132,252,0.8)',
+              backgroundColor: 'rgba(192,132,252,0.1)',
+              borderWidth: 2.5,
+              pointBackgroundColor: 'rgba(249,168,212,1)',
+              pointBorderColor: 'rgba(192,132,252,1)',
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              fill: true,
+              tension: 0.4,
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` Intensity: ${ctx.raw}/10` } } },
+            scales: {
+              y: { beginAtZero: true, max: 10, ticks: { stepSize: 2, color: '#b0a0c0', font: { family: 'Outfit' } }, grid: { color: 'rgba(180,120,160,0.1)' } },
+              x: { ticks: { color: '#7a6a8c', font: { family: 'Outfit', size: 10 } }, grid: { display: false } }
+            }
+          }
+        });
+
       } catch(e) { console.log('Could not load history', e); }
     }
 
@@ -322,13 +430,8 @@
       const phone = document.getElementById('crisisPhone').value.trim();
       const digits = phone.replace(/\D/g, '');
       const phoneError = document.getElementById('phoneError');
-
-      if (phone && digits.length !== 10) {
-        phoneError.style.display = 'block';
-        return;
-      }
+      if (phone && digits.length !== 10) { phoneError.style.display = 'block'; return; }
       phoneError.style.display = 'none';
-
       localStorage.setItem(`crisis_name_${currentUserId}`, name);
       localStorage.setItem(`crisis_phone_${currentUserId}`, phone);
       showToast('Trusted contact saved 💜');
