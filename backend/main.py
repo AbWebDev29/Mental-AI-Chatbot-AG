@@ -399,7 +399,7 @@ async def get_dynamic_greeting(user_id: str, name: str = Query(default="friend")
         if memory["total_sessions"] == 0:
             return {
                 "greeting": (
-                    f"Hello {name} 🌸 I'm your Mental AI companion. "
+                    f"Hello {name} 🌸 I'm your Mirra AI companion. "
                     "I'm here to listen, support, and guide you through anything you're feeling.\n\n"
                     "What's on your mind today?"
                 )

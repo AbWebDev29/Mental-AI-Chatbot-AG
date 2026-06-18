@@ -1,7 +1,7 @@
 # Mental-ai-chatbot
 <div align="center">
 
-# 🌸 Mental AI — Your Compassionate Wellness Companion
+# 🌸 Mirra AI — Your Compassionate Wellness Companion
 
 [![Python](https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
@@ -15,9 +15,9 @@
 
 ---
 
-## ✨ What is Mental AI?
+## ✨ What is Mirra AI?
 
-Mental AI is a full-stack AI-powered mental wellness chatbot that goes beyond simple conversation. It understands your emotions clinically, remembers your journey across sessions, and provides a safe, empathetic space — available 24/7.
+Mirra AI is a full-stack AI-powered mental wellness chatbot that goes beyond simple conversation. It understands your emotions clinically, remembers your journey across sessions, and provides a safe, empathetic space — available 24/7.
 
 Built as a production-grade application with real authentication, persistent memory, clinical analysis, and a beautiful glassmorphism UI.
 
@@ -232,10 +232,10 @@ Built by **Gayathri** & **Anvi** as part of a real-world AI engineering portfoli
 
 ## ⚠️ Disclaimer
 
-Mental AI is an AI companion and is **not a replacement** for professional mental health care. If you or someone you know is in crisis, please contact a mental health professional or call **KIRAN: 1800-599-0019** (India, free, 24/7).
+Mirra AI is an AI companion and is **not a replacement** for professional mental health care. If you or someone you know is in crisis, please contact a mental health professional or call **KIRAN: 1800-599-0019** (India, free, 24/7).
 
 ---
 
 <div align="center">
-Made with 💜 · Your thoughts are safe here · Mental AI 2026
+Made with 💜 · Your thoughts are safe here · Mirra AI 2026
 </div>
