@@ -1,3 +1,9 @@
+// Looks for the variable injected by your environment, otherwise falls back to localhost
+const API_BASE_URL = (typeof process !== 'undefined' && process.env.VITE_API_BASE_URL) 
+  ? process.env.VITE_API_BASE_URL 
+  : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" 
+      ? "http://localhost:10000" 
+      : "https://mirraai-ln7e.onrender.com");
 function getUser() {
   return {
     id: localStorage.getItem('user_id'),
@@ -69,6 +75,7 @@ function updateNavbar() {
     profileBtn.onclick = () => window.location.href = 'signin.html';
   }
 }
+<<<<<<< HEAD
 
 function initTheme() {
   const saved = localStorage.getItem('theme') || 'light';
@@ -100,3 +107,44 @@ function injectThemeToggle() {
 }
 
 document.addEventListener('DOMContentLoaded', () => { initTheme(); injectThemeToggle(); updateNavbar(); });
+=======
+document.addEventListener('DOMContentLoaded', updateNavbar);
+
+// Authentication helper functions using API_BASE_URL
+async function handleSignIn(email, password) {
+  const response = await fetch(`${API_BASE_URL}/auth/signin`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.detail || 'Sign in failed');
+
+  localStorage.setItem('user_id', data.user_id);
+  localStorage.setItem('user_name', data.full_name || 'Friend');
+  localStorage.setItem('user_email', email);
+  return data;
+}
+
+async function handleSignUp(email, password, full_name) {
+  const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, full_name })
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.detail || 'Sign up failed');
+
+  // Optionally store user info or prompt to sign in
+  localStorage.setItem('user_id', data.user_id);
+  localStorage.setItem('user_name', full_name || 'Friend');
+  localStorage.setItem('user_email', email);
+  return data;
+}
+
+// Expose helpers globally for inline HTML scripts
+window.handleSignIn = handleSignIn;
+window.handleSignUp = handleSignUp;
+>>>>>>> 6baa45fc7117179ed2a67591c923ad4a10cf1f48

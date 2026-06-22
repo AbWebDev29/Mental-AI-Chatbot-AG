@@ -5,7 +5,7 @@ from predefined taxonomies using JSON mode for strict output.
 """
 
 import json
-import ollama
+"""import ollama"""
 from typing import Dict, Any, Optional, List
 from taxonomy import (
     get_full_taxonomy_string,

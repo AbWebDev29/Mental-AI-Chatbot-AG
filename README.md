@@ -210,11 +210,11 @@ Built by **Gayathri** & **Anvi** as part of a real-world AI engineering portfoli
 |---------|-------|
 | Auth, Profile, Settings | Gayathri Menon|
 | Sidebar & Conversation Memory | Gayathri Menon|
-| Google OAuth | Gayathri Menon|
+| Support Page | Gayathri Menon|
 | AI Response Engine | Shared |
 | Frontend | Shared |
 | Clinical NLP System | Anvi Bansal |
-| Support Page | Anvi Bansal|
+| Deployment | Anvi Bansal|
 | Games Section | Anvi Bansal|
 
 ---
