@@ -1,0 +1,65 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#1a0a1e,#0a1628);min-height:100vh;display:flex;align-items:center;justify-content:center;color:white}
+.container{text-align:center;padding:40px 20px;max-width:480px;width:100%}
+h1{font-size:1.8rem;margin-bottom:8px}
+p{color:rgba(255,255,255,0.6);margin-bottom:40px;font-size:0.9rem;line-height:1.6}
+.card{background:linear-gradient(135deg,rgba(249,168,212,0.12),rgba(192,132,252,0.12));border:1.5px solid rgba(249,168,212,0.25);border-radius:24px;padding:40px 30px;margin-bottom:24px;min-height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.card-icon{font-size:3rem}
+.card-title{font-size:1rem;font-weight:700;color:rgba(255,255,255,0.9)}
+.card-desc{font-size:0.88rem;color:rgba(255,255,255,0.6);line-height:1.65}
+.tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tag{font-size:0.7rem;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.12)}
+.actions{display:flex;gap:12px}
+.btn{flex:1;border:none;border-radius:50px;padding:13px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-done{background:linear-gradient(135deg,#f9a8d4,#c084fc);color:white}
+.btn-done:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(249,168,212,0.4)}
+.btn-skip{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.15)}
+.btn-skip:hover{background:rgba(255,255,255,0.12)}
+.score{color:#f9a8d4;font-size:0.85rem;margin-top:16px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:999}
+</style></head><body>
+<div class="container">
+  <h1>Kindness Challenge 🩷</h1>
+  <p>Small acts of kindness boost your mood instantly — for you and others</p>
+  <div class="card" id="card">
+    <span class="card-icon" id="icon">🌸</span>
+    <div class="card-title" id="title">Loading...</div>
+    <div class="card-desc" id="desc"></div>
+    <div class="tags" id="tags"></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-done" onclick="done()">✓ I did this!</button>
+    <button class="btn btn-skip" onclick="next()">Skip →</button>
+  </div>
+  <div class="score" id="score">0 acts of kindness today 💜</div>
+</div>
+<script>
+const challenges = [
+  {i:'💌',t:'Send a kind message',d:'Text someone you haven\'t spoken to in a while and let them know you\'re thinking of them.',tags:['Connection','5 min']},
+  {i:'😊',t:'Compliment a stranger',d:'Give a genuine compliment to someone today — a barista, classmate, or anyone around you.',tags:['Social','Instant']},
+  {i:'🫂',t:'Check in on a friend',d:'Ask a friend "how are you really doing?" and actually listen to the answer.',tags:['Friendship','10 min']},
+  {i:'📝',t:'Write yourself a kind note',d:'Write 3 things you like about yourself on a sticky note and put it somewhere you\'ll see it.',tags:['Self-love','5 min']},
+  {i:'🌿',t:'Do something for nature',d:'Water a plant, pick up a piece of litter, or spend 5 minutes outside being grateful.',tags:['Nature','5 min']},
+  {i:'🙏',t:'Thank someone sincerely',d:'Think of someone who helped you recently. Thank them properly — tell them what it meant.',tags:['Gratitude','5 min']},
+  {i:'☕',t:'Do something nice for family',d:'Make tea for someone at home, help with a chore without being asked, or just give a hug.',tags:['Family','10 min']},
+  {i:'💜',t:'Be kind to yourself',d:'Cancel one thing you\'re dreading today if you can. Rest is not laziness. You deserve grace.',tags:['Self-care','Instant']},
+  {i:'📖',t:'Share something helpful',d:'Send an article, song, or resource to someone who might need it right now.',tags:['Sharing','5 min']},
+  {i:'🌟',t:'Celebrate someone',d:'Tell a friend about something you admire about them specifically. Make it concrete and real.',tags:['Connection','5 min']},
+];
+let idx = Math.floor(Math.random()*challenges.length), done_count = 0;
+function render() {
+  const c = challenges[idx];
+  document.getElementById('icon').textContent = c.i;
+  document.getElementById('title').textContent = c.t;
+  document.getElementById('desc').textContent = c.d;
+  document.getElementById('tags').innerHTML = c.tags.map(t=>`<span class="tag">${t}</span>`).join('');
+}
+function next() { idx = (idx+1)%challenges.length; render(); }
+function done() {
+  done_count++;
+  document.getElementById('score').textContent = done_count + ' act'+(done_count!==1?'s':'')+' of kindness today 💜';
+  next();
+}
+render();
+</script></body></html>

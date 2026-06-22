@@ -69,4 +69,34 @@ function updateNavbar() {
     profileBtn.onclick = () => window.location.href = 'signin.html';
   }
 }
-document.addEventListener('DOMContentLoaded', updateNavbar);
+
+function initTheme() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+}
+
+function injectThemeToggle() {
+  if (document.getElementById('themeToggle')) return;
+  const navbar = document.querySelector('.navbar');
+  if (!navbar) return;
+  const btn = document.createElement('button');
+  btn.id = 'themeToggle';
+  btn.className = 'theme-toggle';
+  btn.textContent = '🌙';
+  btn.onclick = toggleTheme;
+  const profile = navbar.querySelector('.navbar-profile');
+  if (profile) navbar.insertBefore(btn, profile);
+}
+
+document.addEventListener('DOMContentLoaded', () => { initTheme(); injectThemeToggle(); updateNavbar(); });

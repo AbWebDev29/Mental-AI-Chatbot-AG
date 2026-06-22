@@ -1,0 +1,91 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:linear-gradient(180deg,#0a1220 0%,#0d1f35 50%,#0a1220 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;color:white;overflow:hidden}
+.container{text-align:center;padding:40px 20px;max-width:480px;width:100%;position:relative;z-index:2}
+h1{font-size:1.8rem;margin-bottom:8px}
+p{color:rgba(255,255,255,0.5);margin-bottom:40px;font-size:0.9rem}
+.scene{font-size:4rem;margin-bottom:20px;display:block;animation:sway 4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.controls{display:flex;flex-direction:column;gap:20px;margin-bottom:30px}
+.sound-row{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px 20px}
+.sound-label{font-size:0.9rem;flex:1;text-align:left;display:flex;align-items:center;gap:10px}
+input[type=range]{flex:1;height:4px;appearance:none;background:rgba(255,255,255,0.2);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#00aaff,#00ffaa);cursor:pointer}
+.timer{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px;font-size:2rem;font-weight:700;color:#00ffaa;letter-spacing:2px}
+.btn{background:linear-gradient(135deg,#00aaff,#00ffaa);color:#0a1220;border:none;border-radius:50px;padding:14px 36px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;margin-top:20px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,170,255,0.3)}
+.drops{position:fixed;inset:0;pointer-events:none;z-index:1}
+.drop{position:absolute;width:1px;background:linear-gradient(180deg,transparent,rgba(100,180,255,0.4));animation:fall linear infinite;top:-20px}
+@keyframes fall{to{transform:translateY(110vh)}}
+</style></head><body>
+<div class="drops" id="drops"></div>
+<div class="container">
+  <span class="scene">🌧️</span>
+  <h1>Rain Sounds 🌧️</h1>
+  <p>Close your eyes and let the rain wash your worries away</p>
+  <div class="controls">
+    <div class="sound-row"><span class="sound-label">🌧️ Rain</span><input type="range" id="rainVol" min="0" max="1" step="0.01" value="0.6" oninput="setVol('rain',this.value)"></div>
+    <div class="sound-row"><span class="sound-label">⛈️ Thunder</span><input type="range" id="thunderVol" min="0" max="1" step="0.01" value="0.2" oninput="setVol('thunder',this.value)"></div>
+    <div class="sound-row"><span class="sound-label">🍃 Wind</span><input type="range" id="windVol" min="0" max="1" step="0.01" value="0.3" oninput="setVol('wind',this.value)"></div>
+  </div>
+  <div class="timer" id="timer">5:00</div>
+  <button class="btn" id="btn" onclick="toggle()">▶ Start Rain</button>
+</div>
+<script>
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+let playing = false, interval, seconds = 300;
+const nodes = {};
+
+function makeNoise(type, vol) {
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  const filter = ctx.createBiquadFilter();
+  const gain = ctx.createGain();
+  gain.gain.value = vol;
+  if (type === 'rain') { filter.type = 'bandpass'; filter.frequency.value = 2000; filter.Q.value = 0.5; }
+  else if (type === 'thunder') { filter.type = 'lowpass'; filter.frequency.value = 200; }
+  else { filter.type = 'highpass'; filter.frequency.value = 500; }
+  src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  src.start(); nodes[type] = gain; return gain;
+}
+
+function setVol(type, val) { if (nodes[type]) nodes[type].gain.value = parseFloat(val); }
+
+function createDrops() {
+  const c = document.getElementById('drops');
+  for (let i = 0; i < 60; i++) {
+    const d = document.createElement('div');
+    d.className = 'drop';
+    d.style.left = Math.random() * 100 + 'vw';
+    d.style.height = (10 + Math.random() * 20) + 'px';
+    d.style.animationDuration = (0.5 + Math.random()) + 's';
+    d.style.animationDelay = Math.random() * 2 + 's';
+    c.appendChild(d);
+  }
+}
+
+function toggle() {
+  if (!playing) {
+    ctx.resume();
+    makeNoise('rain', parseFloat(document.getElementById('rainVol').value));
+    makeNoise('thunder', parseFloat(document.getElementById('thunderVol').value));
+    makeNoise('wind', parseFloat(document.getElementById('windVol').value));
+    createDrops();
+    playing = true;
+    document.getElementById('btn').textContent = '⏸ Pause';
+    interval = setInterval(() => {
+      if (--seconds <= 0) { seconds = 0; toggle(); }
+      const m = Math.floor(seconds/60), s = seconds%60;
+      document.getElementById('timer').textContent = m + ':' + String(s).padStart(2,'0');
+    }, 1000);
+  } else {
+    ctx.suspend(); playing = false;
+    document.getElementById('btn').textContent = '▶ Resume';
+    clearInterval(interval);
+    document.getElementById('drops').innerHTML = '';
+  }
+}
+</script></body></html>

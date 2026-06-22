@@ -1,0 +1,81 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#0a1a10,#0a0f1a);min-height:100vh;display:flex;align-items:center;justify-content:center;color:white}
+.container{text-align:center;padding:40px 20px;max-width:480px;width:100%}
+h1{font-size:1.8rem;margin-bottom:8px}
+p{color:rgba(255,255,255,0.5);margin-bottom:30px;font-size:0.9rem;line-height:1.6}
+.timer-ring{position:relative;width:180px;height:180px;margin:0 auto 30px}
+svg{transform:rotate(-90deg)}
+circle{fill:none;stroke-width:8;stroke-linecap:round}
+.bg-ring{stroke:rgba(255,255,255,0.08)}
+.progress-ring{stroke:#00ffaa;stroke-dasharray:502;stroke-dashoffset:502;transition:stroke-dashoffset 1s linear}
+.timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.timer-num{font-size:2.2rem;font-weight:700;color:#00ffaa}
+.timer-label{font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:2px}
+.prompt{background:rgba(255,255,255,0.06);border:1px solid rgba(0,255,170,0.15);border-radius:20px;padding:24px;margin-bottom:24px;font-size:0.95rem;line-height:1.75;color:rgba(255,255,255,0.85);min-height:80px;display:flex;align-items:center;justify-content:center}
+.btn{background:linear-gradient(135deg,#00ffaa,#00aaff);color:#0a0f1a;border:none;border-radius:50px;padding:13px 36px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,255,170,0.3)}
+.session-count{color:rgba(255,255,255,0.3);font-size:0.8rem;margin-top:16px}
+</style></head><body>
+<div class="container">
+  <h1>Mindful Moment 🍃</h1>
+  <p>A 60-second guided mindfulness pause. Just breathe and be present.</p>
+  <div class="timer-ring">
+    <svg width="180" height="180" viewBox="0 0 180 180">
+      <circle class="bg-ring" cx="90" cy="90" r="80"/>
+      <circle class="progress-ring" id="ring" cx="90" cy="90" r="80"/>
+    </svg>
+    <div class="timer-text">
+      <div class="timer-num" id="num">60</div>
+      <div class="timer-label" id="tlabel">seconds</div>
+    </div>
+  </div>
+  <div class="prompt" id="prompt">Press Start to begin your mindful moment</div>
+  <button class="btn" id="btn" onclick="toggle()">▶ Start</button>
+  <div class="session-count" id="sessions"></div>
+</div>
+<script>
+const prompts = [
+  'Close your eyes gently. Notice the weight of your body in your seat.',
+  'Take a slow breath in through your nose... hold... and release through your mouth.',
+  'Notice 3 sounds around you without judging them. Just observe.',
+  'Feel your hands. Notice the temperature, texture of what you\'re touching.',
+  'Your thoughts are like clouds. Watch them pass without chasing them.',
+  'Take another deep breath. You are exactly where you need to be right now.',
+  'Notice your heartbeat. It has been with you through everything.',
+  'Relax your shoulders away from your ears. Unclench your jaw.',
+  'You are safe. You are here. This moment is enough.',
+  'Take one final deep breath. Carry this stillness with you.',
+];
+let running=false,t=60,interval,sessions=parseInt(localStorage.getItem('mindful_sessions')||0);
+if(sessions>0)document.getElementById('sessions').textContent=sessions+' mindful moment'+(sessions!==1?'s':'')+' completed';
+function toggle(){
+  if(!running){
+    running=true;t=60;
+    document.getElementById('btn').textContent='⏹ Stop';
+    document.getElementById('tlabel').textContent='seconds';
+    tick();
+    interval=setInterval(tick,1000);
+  } else {
+    running=false;clearInterval(interval);
+    document.getElementById('btn').textContent='▶ Start';
+    document.getElementById('num').textContent='60';
+    document.getElementById('ring').style.strokeDashoffset='502';
+    document.getElementById('prompt').textContent='Press Start to begin your mindful moment';
+  }
+}
+function tick(){
+  document.getElementById('num').textContent=t;
+  document.getElementById('ring').style.strokeDashoffset=502-(502*(60-t)/60);
+  const pi=Math.floor((60-t)/6);
+  if(pi<prompts.length)document.getElementById('prompt').textContent=prompts[pi];
+  if(t===0){
+    clearInterval(interval);running=false;
+    sessions++;localStorage.setItem('mindful_sessions',sessions);
+    document.getElementById('btn').textContent='▶ Again';
+    document.getElementById('prompt').textContent='✨ Well done. Take a moment to notice how you feel now.';
+    document.getElementById('sessions').textContent=sessions+' mindful moment'+(sessions!==1?'s':'')+' completed';
+  }
+  t--;
+}
+</script></body></html>

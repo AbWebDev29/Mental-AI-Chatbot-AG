@@ -1,0 +1,75 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:#0a0f1a;min-height:100vh;display:flex;align-items:center;justify-content:center;color:white;transition:background 3s ease}
+.container{text-align:center;padding:40px 20px;max-width:440px;width:100%}
+h1{font-size:1.8rem;margin-bottom:8px}
+p{color:rgba(255,255,255,0.5);margin-bottom:40px;font-size:0.9rem}
+.orb{width:200px;height:200px;border-radius:50%;margin:0 auto 30px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;transition:all 2s ease;box-shadow:0 0 60px currentColor;cursor:pointer}
+.phase{font-size:1.1rem;color:rgba(255,255,255,0.8);margin-bottom:8px;height:28px}
+.count{font-size:3rem;font-weight:700;margin-bottom:30px;color:#00ffaa}
+.colours{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+.col-btn{width:36px;height:36px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s}
+.col-btn:hover,.col-btn.active{border-color:white;transform:scale(1.2)}
+.btn{background:linear-gradient(135deg,#00ffaa,#00aaff);color:#0a0f1a;border:none;border-radius:50px;padding:13px 32px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.cycles{color:rgba(255,255,255,0.4);font-size:0.8rem;margin-top:16px}
+</style></head><body>
+<div class="container">
+  <h1>Colour Breathing 🌈</h1>
+  <p>Pick a colour and breathe with the orb. Each colour has a different energy.</p>
+  <div class="colours">
+    <div class="col-btn active" style="background:#00ffaa" onclick="setCol('#00ffaa','rgba(0,255,170,0.15)','#0a2018')"></div>
+    <div class="col-btn" style="background:#00aaff" onclick="setCol('#00aaff','rgba(0,170,255,0.15)','#0a1828')"></div>
+    <div class="col-btn" style="background:#c084fc" onclick="setCol('#c084fc','rgba(192,132,252,0.15)','#180a28')"></div>
+    <div class="col-btn" style="background:#f9a8d4" onclick="setCol('#f9a8d4','rgba(249,168,212,0.15)','#280a18')"></div>
+    <div class="col-btn" style="background:#fbbf24" onclick="setCol('#fbbf24','rgba(251,191,36,0.15)','#281a0a')"></div>
+  </div>
+  <div class="orb" id="orb" style="background:rgba(0,255,170,0.15);color:#00ffaa">Ready</div>
+  <div class="phase" id="phase">Tap to begin</div>
+  <div class="count" id="count" style="opacity:0">4</div>
+  <button class="btn" id="btn" onclick="toggle()">▶ Start</button>
+  <div class="cycles" id="cycles"></div>
+</div>
+<script>
+const phases = [
+  {name:'Breathe In 🌬️',dur:4,scale:'scale(1.4)',opacity:1},
+  {name:'Hold 🤍',dur:4,scale:'scale(1.4)',opacity:0.8},
+  {name:'Breathe Out 💨',dur:4,scale:'scale(0.85)',opacity:0.5},
+  {name:'Hold 🤍',dur:2,scale:'scale(0.85)',opacity:0.4},
+];
+let running=false,phase=0,count=0,interval,cycles=0,color='#00ffaa';
+function setCol(c,bg,bgBody) {
+  color=c;
+  document.getElementById('orb').style.background=bg;
+  document.getElementById('orb').style.color=c;
+  document.getElementById('orb').style.boxShadow='0 0 60px '+c;
+  document.body.style.background=bgBody;
+  document.querySelectorAll('.col-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+function toggle(){
+  if(!running){running=true;document.getElementById('btn').textContent='⏹ Stop';nextPhase();}
+  else{running=false;clearInterval(interval);document.getElementById('btn').textContent='▶ Start';document.getElementById('phase').textContent='Tap to begin';document.getElementById('count').style.opacity=0;document.getElementById('orb').textContent='Ready';document.getElementById('orb').style.transform='';}
+}
+function nextPhase(){
+  if(!running)return;
+  const p=phases[phase];
+  count=p.dur;
+  document.getElementById('phase').textContent=p.name;
+  document.getElementById('count').style.opacity=1;
+  document.getElementById('count').textContent=count;
+  document.getElementById('orb').style.transform=p.scale;
+  document.getElementById('orb').style.opacity=p.opacity;
+  document.getElementById('orb').textContent=p.name.split(' ')[0];
+  clearInterval(interval);
+  interval=setInterval(()=>{
+    count--;
+    document.getElementById('count').textContent=count;
+    if(count<=0){
+      clearInterval(interval);
+      phase=(phase+1)%phases.length;
+      if(phase===0){cycles++;document.getElementById('cycles').textContent=cycles+' cycle'+(cycles!==1?'s':'')+' complete';}
+      nextPhase();
+    }
+  },1000);
+}
+</script></body></html>

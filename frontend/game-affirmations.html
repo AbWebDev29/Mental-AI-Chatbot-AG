@@ -1,0 +1,59 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#0a1628,#1a0a2e);min-height:100vh;display:flex;align-items:center;justify-content:center;color:white}
+.container{text-align:center;padding:40px 20px;max-width:480px;width:100%}
+h1{font-size:1.8rem;margin-bottom:8px}
+p{color:rgba(255,255,255,0.6);margin-bottom:40px;font-size:0.9rem}
+.card{background:linear-gradient(135deg,rgba(249,168,212,0.15),rgba(192,132,252,0.15));border:1.5px solid rgba(249,168,212,0.3);border-radius:24px;padding:48px 36px;margin-bottom:30px;min-height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;cursor:pointer;transition:all 0.3s ease;position:relative;overflow:hidden}
+.card:hover{transform:scale(1.02);box-shadow:0 20px 60px rgba(249,168,212,0.2)}
+.card-emoji{font-size:2.5rem}
+.card-text{font-size:1.2rem;font-weight:600;line-height:1.6;color:white}
+.card-hint{font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:8px}
+.btn{background:linear-gradient(135deg,#f9a8d4,#c084fc);color:white;border:none;border-radius:50px;padding:14px 36px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;box-shadow:0 6px 20px rgba(249,168,212,0.3)}
+.btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(249,168,212,0.4)}
+.progress{color:rgba(255,255,255,0.3);font-size:0.8rem;margin-top:16px}
+@keyframes flipIn{0%{opacity:0;transform:rotateY(90deg)}100%{opacity:1;transform:rotateY(0)}}
+.animate{animation:flipIn 0.4s ease}
+</style></head><body>
+<div class="container">
+  <h1>Daily Affirmations 💝</h1>
+  <p>Tap the card or click Next to receive your affirmation</p>
+  <div class="card" onclick="next()" id="card">
+    <span class="card-emoji" id="emoji">✨</span>
+    <div class="card-text" id="text">Tap to reveal your affirmation</div>
+    <div class="card-hint">Tap for next →</div>
+  </div>
+  <button class="btn" onclick="next()">Next Affirmation ✨</button>
+  <div class="progress" id="progress"></div>
+</div>
+<script>
+const affirmations = [
+  {e:'💜',t:'I am worthy of love and belonging, exactly as I am.'},
+  {e:'🌟',t:'I am doing the best I can, and that is enough.'},
+  {e:'🌸',t:'My feelings are valid. I allow myself to feel.'},
+  {e:'💪',t:'I have survived every hard day so far. I can do this.'},
+  {e:'🧠',t:'My mental health matters and I deserve to care for it.'},
+  {e:'🌈',t:'I am allowed to rest. Doing nothing is doing something.'},
+  {e:'🦋',t:'I am growing, even when I can\'t see it yet.'},
+  {e:'✨',t:'I release what I cannot control and focus on what I can.'},
+  {e:'🌺',t:'I am not my anxiety. I am bigger than my fears.'},
+  {e:'💫',t:'I choose to be kind to myself today.'},
+  {e:'🌿',t:'Healing is not linear. Every day I try is a win.'},
+  {e:'❤️',t:'I deserve good things. I deserve peace. I deserve happiness.'},
+  {e:'🎀',t:'I am enough. I have always been enough.'},
+  {e:'🌙',t:'It is okay to not have everything figured out.'},
+  {e:'⭐',t:'I am proud of how far I\'ve come.'},
+];
+let idx = 0;
+function next() {
+  idx = (idx + 1) % affirmations.length;
+  const card = document.getElementById('card');
+  card.classList.remove('animate');
+  void card.offsetWidth;
+  card.classList.add('animate');
+  document.getElementById('emoji').textContent = affirmations[idx].e;
+  document.getElementById('text').textContent = affirmations[idx].t;
+  document.getElementById('progress').textContent = (idx+1) + ' / ' + affirmations.length;
+}
+next();
+</script></body></html>

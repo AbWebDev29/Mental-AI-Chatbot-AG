@@ -261,7 +261,7 @@
     <nav class="navbar">
       <a href="index.html" class="navbar-logo">
         <div class="logo-circle">🌸</div>
-        <div class="logo-text"><span>Mental</span> AI</div>
+        <div class="logo-text"><span>Mirra</span> AI</div>
       </a>
       <ul class="navbar-links">
         <li><a href="support.html">Support</a></li>
@@ -371,34 +371,19 @@
 
   <script>
     const GAMES = [
-      {
-        emoji: '🫧',
-        title: 'Breathe With Me',
-        desc: 'Guided breathing to calm anxiety & ease panic.',
-        tag: 'Anxiety · Panic',
-        file: 'game-breathe.html'
-      },
-      {
-        emoji: '🌿',
-        title: 'Doodle Garden',
-        desc: 'Draw & plant flowers in a peaceful digital garden.',
-        tag: 'Stress · Flow',
-        file: 'game-doodle.html'
-      },
-      {
-        emoji: '🧘',
-        title: '5–4–3–2–1 Grounding',
-        desc: 'Anchor to the present using your five senses.',
-        tag: 'Grounding',
-        file: 'game-grounding.html'
-      },
-      {
-        emoji: '🏺',
-        title: 'Worry Jar',
-        desc: 'Write a worry, crumple it up & let it go forever.',
-        tag: 'Overthinking',
-        file: 'game-worry.html'
-      }
+      { emoji:'🫧', title:'Breathe With Me', desc:'Guided breathing to calm anxiety & ease panic.', tag:'Anxiety · Panic', file:'game-breathe.html' },
+      { emoji:'🌿', title:'Doodle Garden', desc:'Draw & plant flowers in a peaceful digital garden.', tag:'Stress · Flow', file:'game-doodle.html' },
+      { emoji:'🧘', title:'5–4–3–2–1 Grounding', desc:'Anchor to the present using your five senses.', tag:'Grounding', file:'game-grounding.html' },
+      { emoji:'🏺', title:'Worry Jar', desc:'Write a worry, crumple it up & let it go forever.', tag:'Overthinking', file:'game-worry.html' },
+      { emoji:'💭', title:'Mood Check-In', desc:'Pick your emotion and get a personalised message.', tag:'Awareness · Daily', file:'game-mood.html' },
+      { emoji:'🫙', title:'Gratitude Jar', desc:'Drop in daily gratitudes and watch them fill up.', tag:'Positivity · Habit', file:'game-gratitude.html' },
+      { emoji:'💝', title:'Affirmation Cards', desc:'Flip through 15 affirmations made for hard days.', tag:'Self-love · Mindset', file:'game-affirmations.html' },
+      { emoji:'🌧️', title:'Rain Sounds', desc:'Ambient rain, thunder & wind to calm your mind.', tag:'Relaxation · Focus', file:'game-rain.html' },
+      { emoji:'🧠', title:'Thought Reframe', desc:'Challenge negative thoughts with guided steps.', tag:'CBT · Anxiety', file:'game-reframe.html' },
+      { emoji:'🌈', title:'Colour Breathing', desc:'Breathe with a colour orb that shifts your energy.', tag:'Breathwork · Calm', file:'game-colour.html' },
+      { emoji:'🩷', title:'Kindness Challenge', desc:'Small acts that boost your mood instantly.', tag:'Connection · Joy', file:'game-kindness.html' },
+      { emoji:'🍃', title:'Mindful Moment', desc:'A 60-second guided mindfulness pause.', tag:'Mindfulness · Reset', file:'game-mindful.html' },
+      { emoji:'🎡', title:'Emotion Wheel', desc:'Understand your emotions and how to work with them.', tag:'Awareness · Growth', file:'game-emotions.html' },
     ];
 
     const placeholderEmojis = ['🦋', '☁️', '✨', '🌙', '🍃', '🩷', '🌈', '🫧', '🎀', '🌺', '💫', '🌟'];
@@ -421,17 +406,7 @@
       grid.appendChild(card);
     });
 
-    // Remaining 12: coming soon placeholders
-    placeholderEmojis.forEach((emoji, i) => {
-      const card = document.createElement('div');
-      card.className = 'game-card';
-      card.style.cursor = 'default';
-      card.innerHTML = `
-        <span class="card-emoji" style="position:relative;z-index:1;opacity:0.6">${emoji}</span>
-        <span class="card-coming">COMING SOON</span>
-      `;
-      grid.appendChild(card);
-    });
+
 
     function openGame(file) {
       const overlay = document.getElementById('gameOverlay');

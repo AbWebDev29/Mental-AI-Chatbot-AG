@@ -1,0 +1,67 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#1a0a2e,#0a1628);min-height:100vh;display:flex;align-items:center;justify-content:center;color:white}
+.container{text-align:center;padding:40px 20px;max-width:520px;width:100%}
+h1{font-size:1.8rem;margin-bottom:8px}
+p{color:rgba(255,255,255,0.5);margin-bottom:30px;font-size:0.9rem}
+.wheel{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.emotion{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px 8px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.emotion:hover{transform:translateY(-3px);background:rgba(255,255,255,0.12)}
+.emotion.active{border-color:var(--ec);background:var(--eb)}
+.em-emoji{font-size:1.6rem}
+.em-name{font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.7)}
+.detail{display:none;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:24px;text-align:left;animation:fadeIn 0.3s ease}
+.detail.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.detail h3{font-size:1rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.detail p{font-size:0.85rem;color:rgba(255,255,255,0.65);line-height:1.7}
+.detail .tip{margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.05);border-radius:12px;font-size:0.82rem;color:rgba(255,255,255,0.5);border-left:3px solid #c084fc}
+</style></head><body>
+<div class="container">
+  <h1>Emotion Wheel 🎡</h1>
+  <p>Tap an emotion to understand it better and learn how to work with it</p>
+  <div class="wheel">
+    <div class="emotion" style="--ec:rgba(134,239,172,0.8);--eb:rgba(134,239,172,0.1)" onclick="show('Joy','😊','Joy is a signal that something aligns with your values and needs. It\'s your mind saying \"this is good for me\".','Savour this feeling — write it down so you can return to it when things feel heavy.')">
+      <span class="em-emoji">😊</span><span class="em-name">Joy</span>
+    </div>
+    <div class="emotion" style="--ec:rgba(147,197,253,0.8);--eb:rgba(147,197,253,0.1)" onclick="show('Sadness','😔','Sadness is love with nowhere to go. It often follows loss — of people, expectations, or versions of ourselves.','Allow yourself to feel it without rushing. Cry if you need to. Journal. Call someone.')">
+      <span class="em-emoji">😔</span><span class="em-name">Sadness</span>
+    </div>
+    <div class="emotion" style="--ec:rgba(252,165,165,0.8);--eb:rgba(252,165,165,0.1)" onclick="show('Anger','😤','Anger signals that a boundary has been crossed or something feels unjust. It\'s energy — and energy can be redirected.','Before reacting, breathe. Ask: what is this anger protecting? What do I actually need right now?')">
+      <span class="em-emoji">😤</span><span class="em-name">Anger</span>
+    </div>
+    <div class="emotion" style="--ec:rgba(192,132,252,0.8);--eb:rgba(192,132,252,0.1)" onclick="show('Fear','😰','Fear is your nervous system trying to protect you. Sometimes it\'s helpful. Sometimes it\'s old patterns misfiring.','Name it: \"I feel afraid of ___\". Naming reduces the brain\'s fear response. Then ask: am I actually in danger right now?')">
+      <span class="em-emoji">😰</span><span class="em-name">Fear</span>
+    </div>
+    <div class="emotion" style="--ec:rgba(253,186,116,0.8);--eb:rgba(253,186,116,0.1)" onclick="show('Disgust','🤢','Disgust protects your values and physical safety. It\'s a strong signal that something violates what you find acceptable.','Notice what triggered it. Is it protecting you from something harmful, or is it an old judgment worth examining?')">
+      <span class="em-emoji">🤢</span><span class="em-name">Disgust</span>
+    </div>
+    <div class="emotion" style="--ec:rgba(249,168,212,0.8);--eb:rgba(249,168,212,0.1)" onclick="show('Surprise','😲','Surprise interrupts our autopilot. It\'s your brain updating its model of the world — which takes a moment to process.','Give yourself time to adjust. Not every surprise needs an immediate response.')">
+      <span class="em-emoji">😲</span><span class="em-name">Surprise</span>
+    </div>
+    <div class="emotion" style="--ec:rgba(196,181,253,0.8);--eb:rgba(196,181,253,0.1)" onclick="show('Shame','😶','Shame says \"I am bad\" — different from guilt which says \"I did something bad\". It thrives in silence and secrecy.','Share it with someone safe. Shame loses its power when spoken. You are not your mistakes.')">
+      <span class="em-emoji">😶</span><span class="em-name">Shame</span>
+    </div>
+    <div class="emotion" style="--ec:rgba(110,231,183,0.8);--eb:rgba(110,231,183,0.1)" onclick="show('Calm','😌','Calm is not the absence of feeling — it\'s being present with what is, without being overwhelmed by it.','Notice what helped you get here. Can you build more of it into your day?')">
+      <span class="em-emoji">😌</span><span class="em-name">Calm</span>
+    </div>
+  </div>
+  <div class="detail" id="detail">
+    <h3 id="d-title"></h3>
+    <p id="d-text"></p>
+    <div class="tip" id="d-tip"></div>
+  </div>
+</div>
+<script>
+function show(name, emoji, text, tip) {
+  document.querySelectorAll('.emotion').forEach(e => e.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('d-title').innerHTML = emoji + ' ' + name;
+  document.getElementById('d-text').textContent = text;
+  document.getElementById('d-tip').textContent = '💡 ' + tip;
+  const d = document.getElementById('detail');
+  d.classList.remove('show');
+  void d.offsetWidth;
+  d.classList.add('show');
+}
+</script></body></html>

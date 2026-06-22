@@ -1,0 +1,49 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#1a0a2e,#0d1b2a);min-height:100vh;display:flex;align-items:center;justify-content:center;color:white}
+.container{text-align:center;padding:40px 20px;max-width:500px;width:100%}
+h1{font-size:1.8rem;margin-bottom:8px}
+p{color:rgba(255,255,255,0.6);margin-bottom:40px;font-size:0.95rem}
+.moods{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:40px}
+.mood-btn{background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.15);border-radius:20px;padding:18px 22px;cursor:pointer;transition:all 0.3s ease;font-family:inherit;color:white;font-size:0.85rem;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:90px}
+.mood-btn:hover{transform:translateY(-4px);background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.4)}
+.mood-btn.selected{border-color:#00ffaa;background:rgba(0,255,170,0.15);box-shadow:0 0 20px rgba(0,255,170,0.2)}
+.mood-emoji{font-size:2rem}
+.result{display:none;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:28px;margin-top:20px;line-height:1.7}
+.result h3{font-size:1.1rem;margin-bottom:10px;color:#00ffaa}
+.btn{background:linear-gradient(135deg,#00ffaa,#00aaff);color:#0a0f1a;border:none;border-radius:50px;padding:12px 32px;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:20px;font-family:inherit;transition:all 0.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,255,170,0.3)}
+</style></head><body>
+<div class="container">
+  <h1>How are you feeling? 💭</h1>
+  <p>Pick the emotion that feels closest to where you are right now</p>
+  <div class="moods">
+    <div class="mood-btn" onclick="select(this,'😊 Happy','You\'re in a good place right now! Use this energy to do something you love — call a friend, go for a walk, or journal about what\'s making you happy.')"><span class="mood-emoji">😊</span>Happy</div>
+    <div class="mood-btn" onclick="select(this,'😔 Sad','Feeling sad is okay. It\'s your heart processing something important. Try to be gentle with yourself today — rest, hydrate, and let yourself feel it. You don\'t have to fix anything right now.')"><span class="mood-emoji">😔</span>Sad</div>
+    <div class="mood-btn" onclick="select(this,'😰 Anxious','Anxiety can feel overwhelming. Try box breathing: inhale 4 counts, hold 4, exhale 4, hold 4. Your nervous system will start to calm. You are safe right now.')"><span class="mood-emoji">😰</span>Anxious</div>
+    <div class="mood-btn" onclick="select(this,'😤 Frustrated','Frustration means you care about something. Take 3 deep breaths and step away for 5 minutes. Sometimes the best thing is to pause before reacting.')"><span class="mood-emoji">😤</span>Frustrated</div>
+    <div class="mood-btn" onclick="select(this,'😴 Tired','Rest is not laziness — it\'s maintenance. If you can, take a short break. Even 10 minutes of doing nothing helps. Your body is telling you something important.')"><span class="mood-emoji">😴</span>Tired</div>
+    <div class="mood-btn" onclick="select(this,'😶 Numb','Feeling numb or disconnected is your mind\'s protective response. Try grounding — hold something cold or warm, notice 5 things around you, take slow breaths. You\'re still here.')"><span class="mood-emoji">😶</span>Numb</div>
+    <div class="mood-btn" onclick="select(this,'🤯 Overwhelmed','When everything feels like too much, do one small thing. Just one. Make tea, wash your face, step outside. You don\'t have to solve everything today.')"><span class="mood-emoji">🤯</span>Overwhelmed</div>
+    <div class="mood-btn" onclick="select(this,'🥰 Grateful','Gratitude is a superpower. Take a moment to write down 3 things you\'re grateful for today — big or small. You\'re carrying more goodness than you realize.')"><span class="mood-emoji">🥰</span>Grateful</div>
+  </div>
+  <div class="result" id="result">
+    <h3 id="resultTitle"></h3>
+    <p id="resultText"></p>
+    <button class="btn" onclick="reset()">Check In Again</button>
+  </div>
+</div>
+<script>
+function select(el, title, text) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultText').textContent = text;
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+function reset() {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('result').style.display = 'none';
+}
+</script></body></html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#1a0a2e,#0d1b2a);min-height:100vh;display:flex;align-items:center;justify-content:center;color:white}
+.container{padding:40px 24px;max-width:500px;width:100%}
+h1{font-size:1.8rem;margin-bottom:8px;text-align:center}
+p{color:rgba(255,255,255,0.6);margin-bottom:30px;font-size:0.9rem;text-align:center;line-height:1.6}
+.step{display:none;animation:fadeIn 0.4s ease}
+.step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+label{display:block;font-size:0.8rem;color:rgba(255,255,255,0.5);margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase}
+textarea{width:100%;padding:16px;border-radius:16px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:white;font-family:inherit;font-size:0.9rem;resize:none;outline:none;margin-bottom:20px;line-height:1.6;transition:border 0.3s}
+textarea:focus{border-color:#c084fc}
+textarea::placeholder{color:rgba(255,255,255,0.25)}
+.btn{background:linear-gradient(135deg,#c084fc,#f9a8d4);color:white;border:none;border-radius:50px;padding:13px 32px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;display:block;width:100%;margin-bottom:10px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(192,132,252,0.4)}
+.btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7)}
+.progress{display:flex;gap:8px;justify-content:center;margin-bottom:28px}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.3s}
+.dot.active{background:#c084fc}
+.thought-display{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:14px 18px;font-size:0.88rem;color:rgba(255,255,255,0.7);margin-bottom:16px;font-style:italic;line-height:1.6}
+.reframe-display{background:rgba(192,132,252,0.12);border:1.5px solid rgba(192,132,252,0.3);border-radius:14px;padding:16px 18px;font-size:0.95rem;color:white;margin-bottom:16px;line-height:1.7}
+</style></head><body>
+<div class="container">
+  <h1>Thought Reframe 🧠</h1>
+  <p>Challenge negative thoughts and find a kinder perspective</p>
+  <div class="progress">
+    <div class="dot active" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+    <div class="dot" id="d4"></div>
+  </div>
+  <div class="step active" id="s1">
+    <label>Step 1 — What's the negative thought?</label>
+    <textarea id="t1" rows="4" placeholder="e.g. I'm terrible at everything and will never succeed..."></textarea>
+    <button class="btn" onclick="go(2)">Next →</button>
+  </div>
+  <div class="step" id="s2">
+    <label>Step 2 — Is this thought 100% true?</label>
+    <div class="thought-display" id="show1"></div>
+    <textarea id="t2" rows="3" placeholder="What evidence do you have for AND against this thought?"></textarea>
+    <button class="btn" onclick="go(3)">Next →</button>
+    <button class="btn btn-outline" onclick="go(1)">← Back</button>
+  </div>
+  <div class="step" id="s3">
+    <label>Step 3 — What would you tell a friend?</label>
+    <textarea id="t3" rows="3" placeholder="If your best friend had this thought, what would you say to them?"></textarea>
+    <button class="btn" onclick="go(4)">Next →</button>
+    <button class="btn btn-outline" onclick="go(2)">← Back</button>
+  </div>
+  <div class="step" id="s4">
+    <label>✨ Your Reframed Thought</label>
+    <div class="thought-display" id="show_old"></div>
+    <div style="text-align:center;font-size:1.5rem;margin:10px 0">↓</div>
+    <div class="reframe-display" id="show_new"></div>
+    <button class="btn" onclick="restart()">Reframe Another Thought</button>
+  </div>
+</div>
+<script>
+function go(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i < n));
+  document.getElementById('s'+n).classList.add('active');
+  if (n === 2) document.getElementById('show1').textContent = document.getElementById('t1').value || '—';
+  if (n === 4) {
+    document.getElementById('show_old').textContent = '"' + (document.getElementById('t1').value || '—') + '"';
+    document.getElementById('show_new').textContent = document.getElementById('t3').value || 'Remember: you deserve the same compassion you\'d give a friend. 💜';
+  }
+}
+function restart() {
+  ['t1','t2','t3'].forEach(id => document.getElementById(id).value = '');
+  go(1);
+}
+</script></body></html>
