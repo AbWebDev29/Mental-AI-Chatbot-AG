@@ -483,3 +483,11 @@ async def google_auth(body: GoogleAuthRequest):
 
     except ValueError as e:
         raise HTTPException(status_code=401, detail=f"Invalid Google token: {str(e)}")
+
+@app.delete("/session/{session_id}")
+async def delete_session(session_id: str):
+    try:
+        result = await db.sessions.delete_many({"session_id": session_id})
+        return {"deleted": result.deleted_count, "session_id": session_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

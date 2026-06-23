@@ -185,9 +185,32 @@ sessions.forEach(s => {
 
   const item = document.createElement('div');
   item.className = 'session-item' + (s.session_id === currentSessionId ? ' active' : '');
-  item.textContent = s.first_message?.substring(0, 35) + (s.first_message?.length > 35 ? '...' : '');
+  item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:6px;';
   item.title = s.first_message;
-  item.onclick = () => loadSession(s.session_id, item);
+
+  const label = document.createElement('span');
+  label.textContent = s.first_message?.substring(0, 28) + (s.first_message?.length > 28 ? '...' : '');
+  label.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+  label.onclick = () => loadSession(s.session_id, item);
+
+  const del = document.createElement('button');
+  del.innerHTML = '🗑️';
+  del.title = 'Delete chat';
+  del.style.cssText = 'background:none;border:none;cursor:pointer;font-size:12px;opacity:0;transition:opacity 0.2s;padding:2px 4px;flex-shrink:0;';
+  del.onclick = async (e) => {
+    e.stopPropagation();
+    if (!confirm('Delete this chat permanently?')) return;
+    try {
+      await fetch(`${API}/session/${s.session_id}`, { method: 'DELETE' });
+      if (currentSessionId === s.session_id) showWelcome();
+      loadSessions();
+    } catch(err) { alert('Could not delete. Try again.'); }
+  };
+
+  item.addEventListener('mouseenter', () => del.style.opacity = '1');
+  item.addEventListener('mouseleave', () => del.style.opacity = '0');
+  item.appendChild(label);
+  item.appendChild(del);
   list.appendChild(item);
 });
       } catch(e) {
