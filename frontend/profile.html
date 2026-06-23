@@ -236,7 +236,7 @@
   <script src="auth.js"></script>
   <script>
     if (!isLoggedIn()) window.location.href = 'signin.html';
-    const API = 'http://127.0.0.1:8000';
+    const API = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://127.0.0.1:8000';
     let currentUserId = '';
     let emotionChartInstance = null;
     let intensityChartInstance = null;
