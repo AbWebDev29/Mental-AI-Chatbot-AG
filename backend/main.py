@@ -174,7 +174,7 @@ async def get_patient_history(user_id: str):
     Returns the latest 5 sessions for this user.
     """
     try:
-        cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(20)
+        cursor = db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(limit)
         history = await cursor.to_list(length=5)
 
         for entry in history:
