@@ -75,7 +75,6 @@ function updateNavbar() {
     profileBtn.onclick = () => window.location.href = 'signin.html';
   }
 }
-<<<<<<< HEAD
 
 function initTheme() {
   const saved = localStorage.getItem('theme') || 'light';
@@ -106,21 +105,14 @@ function injectThemeToggle() {
   if (profile) navbar.insertBefore(btn, profile);
 }
 
-document.addEventListener('DOMContentLoaded', () => { initTheme(); injectThemeToggle(); updateNavbar(); });
-=======
-document.addEventListener('DOMContentLoaded', updateNavbar);
-
-// Authentication helper functions using API_BASE_URL
 async function handleSignIn(email, password) {
   const response = await fetch(`${API_BASE_URL}/auth/signin`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-
   const data = await response.json();
   if (!response.ok) throw new Error(data.detail || 'Sign in failed');
-
   localStorage.setItem('user_id', data.user_id);
   localStorage.setItem('user_name', data.full_name || 'Friend');
   localStorage.setItem('user_email', email);
@@ -133,18 +125,16 @@ async function handleSignUp(email, password, full_name) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, full_name })
   });
-
   const data = await response.json();
   if (!response.ok) throw new Error(data.detail || 'Sign up failed');
-
-  // Optionally store user info or prompt to sign in
   localStorage.setItem('user_id', data.user_id);
   localStorage.setItem('user_name', full_name || 'Friend');
   localStorage.setItem('user_email', email);
   return data;
 }
 
-// Expose helpers globally for inline HTML scripts
 window.handleSignIn = handleSignIn;
 window.handleSignUp = handleSignUp;
->>>>>>> 6baa45fc7117179ed2a67591c923ad4a10cf1f48
+
+document.addEventListener('DOMContentLoaded', () => { initTheme(); injectThemeToggle(); updateNavbar(); });
+
