@@ -302,7 +302,9 @@
           return;
         }
 
-        document.getElementById('statChats').textContent = history.length;
+        // Count unique sessions for conversation count
+        const uniqueSessions = new Set(history.map(h => h.session_id)).size;
+        document.getElementById('statChats').textContent = uniqueSessions;
 
         const emotions = history.map(h => h.clinical_markers?.emotion_tag).filter(Boolean);
         if (emotions.length) {
